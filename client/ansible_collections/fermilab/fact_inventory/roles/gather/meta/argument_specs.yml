@@ -1,0 +1,188 @@
+---
+argument_specs:
+  main:
+    short_description: >-
+      Collect system/package/local facts and submit them to the
+      fact_inventory API, with an optional local audit copy.
+    description: >-
+      Runs setup + package_facts, builds a JSON payload, POSTs it to the
+      fact_inventory API, optionally writes a local audit copy, then fails
+      the play if and only if the API submission returns a status code not in
+      fact_inventory_gather_api_expected_status_codes.
+    author:
+      - Fermilab
+    options:
+      fact_inventory_gather_package_manager:
+        type: str
+        required: false
+        default: auto
+        description: Package manager passed to package_facts.
+
+      fact_inventory_gather_local_facts_dir:
+        type: path
+        required: false
+        default: /etc/ansible/facts.d
+        description: >-
+          Directory of local custom facts (fact_path for setup), surfaced
+          as ansible_local.
+
+      fact_inventory_gather_facts_become:
+        type: bool
+        required: false
+        default: true
+        description: Privilege escalation for the setup task only.
+
+      fact_inventory_gather_facts_subset:
+        type: list
+        elements: str
+        required: false
+        default: ["all", "!facter", "!ohai"]
+        description: gather_subset value passed to setup.
+
+      fact_inventory_gather_facts_filter:
+        type: list
+        elements: str
+        required: false
+        default:
+          - "^env$"
+          - "^loadavg$"
+          - "^memfree_mb$"
+          - "^swapfree_mb$"
+          - "^default_ipv4$"
+          - "^default_ipv6$"
+        description: >-
+          Regex patterns matching ansible_facts keys to exclude from
+          system_facts before submission. All patterns are joined with '|'
+          and used as a Jinja2 regex search. Use '^key$' for exact matches
+          or '^prefix' for prefix matches.
+
+      fact_inventory_gather_api_server:
+        type: str
+        required: false
+        default: http://127.0.0.1:8000
+        description: fact_inventory API host, including scheme.
+
+      fact_inventory_gather_api_base_path:
+        type: str
+        required: false
+        default: /fact_inventory
+        description: Base path under the API server.
+
+      fact_inventory_gather_api_endpoint:
+        type: str
+        required: false
+        default: /api/v1/facts
+        description: Resource path submitted to.
+
+      fact_inventory_gather_api_validate_certs:
+        type: bool
+        required: false
+        default: true
+        description: Whether to validate the API server TLS certificate.
+
+      fact_inventory_gather_api_ca_path:
+        type: path
+        required: false
+        default: null
+        description: >-
+          Path to a CA bundle used to validate the API server certificate.
+          When null or empty, the system CA store is used.
+
+      fact_inventory_gather_api_expected_status_codes:
+        type: list
+        elements: int
+        required: false
+        default: [201]
+        description: >-
+          HTTP status codes that indicate a successful API submission.
+          The role fails if the response status is not in this list.
+
+      fact_inventory_gather_audit_enabled:
+        type: bool
+        required: false
+        default: false
+        description: Write a local audit copy of the payload and API result.
+
+      fact_inventory_gather_audit_become:
+        type: bool
+        required: false
+        default: true
+        description: Privilege escalation for audit file/directory tasks.
+
+      fact_inventory_gather_audit_path:
+        type: path
+        required: false
+        default: /var/log/fact-inventory/payload.json
+        description: Audit file destination.
+
+      fact_inventory_gather_audit_owner:
+        type: str
+        required: false
+        default: root
+        description: Audit file owner.
+
+      fact_inventory_gather_audit_group:
+        type: str
+        required: false
+        default: root
+        description: Audit file group.
+
+      fact_inventory_gather_audit_mode:
+        type: str
+        required: false
+        default: "0600"
+        description: Audit file permissions (quoted octal string).
+
+      fact_inventory_gather_audit_create_parent_dir:
+        type: bool
+        required: false
+        default: true
+        description: Create the audit file's parent directory if missing.
+
+      fact_inventory_gather_audit_dir_owner:
+        type: str
+        required: false
+        default: root
+        description: Audit directory owner.
+
+      fact_inventory_gather_audit_dir_group:
+        type: str
+        required: false
+        default: root
+        description: Audit directory group.
+
+      fact_inventory_gather_audit_dir_mode:
+        type: str
+        required: false
+        default: "0755"
+        description: Audit directory permissions (quoted octal string).
+
+      fact_inventory_gather_suppress_audit_output:
+        type: bool
+        required: false
+        default: true
+        description: >-
+          Suppress audit file tasks output.
+          Default true since audit tasks are non failing.
+
+      fact_inventory_gather_suppress_collection_output:
+        type: bool
+        required: false
+        default: false
+        description: >-
+          Suppress output from setup and package_facts, and the build_payload
+          set_fact task.
+
+      fact_inventory_gather_suppress_submit_output:
+        type: bool
+        required: false
+        default: false
+        description: >-
+          Suppress the API submission task output.
+
+      fact_inventory_gather_suppress_validate_output:
+        type: bool
+        required: false
+        default: false
+        description: >-
+          Suppress the final validation output.

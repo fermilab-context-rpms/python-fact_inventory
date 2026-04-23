@@ -1,0 +1,7 @@
+---
+- name: Integration test - Gather role with real API
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - fermilab.fact_inventory.gather

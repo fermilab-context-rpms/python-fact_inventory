@@ -1,0 +1,56 @@
+---
+# Every variable uses the fact_inventory_gather_ prefix (collection +
+# role namespacing) so these names are unambiguous when a play uses
+# multiple roles, and stay collision-free if a sibling role is ever
+# added to this collection. All are plain role defaults (lowest Ansible
+# variable precedence) - override via group_vars, host_vars, -e, or
+# vars: passed to include_role/import_role.
+#
+
+# --- Local fact collection ---
+fact_inventory_gather_package_manager: auto
+fact_inventory_gather_local_facts_dir: /etc/ansible/facts.d
+fact_inventory_gather_facts_become: true
+fact_inventory_gather_facts_subset:
+  - all
+  - "!facter"
+  - "!ohai"
+
+# Regex patterns matching ansible_facts keys to exclude from system_facts
+# before submission. All patterns are joined with '|' and used as a Jinja2
+# regex search against each fact key. Use '^key$' for exact matches or
+# '^prefix' for prefix matches.
+fact_inventory_gather_facts_filter:
+  - "^env$"
+  - "^loadavg$"
+  - "^memfree_mb$"
+  - "^swapfree_mb$"
+  - "^default_ipv4$"
+  - "^default_ipv6$"
+
+# --- fact_inventory API target ---
+fact_inventory_gather_api_server: http://127.0.0.1:8000
+fact_inventory_gather_api_base_path: /fact_inventory
+fact_inventory_gather_api_endpoint: /api/v1/facts
+fact_inventory_gather_api_validate_certs: true
+fact_inventory_gather_api_ca_path: ~
+fact_inventory_gather_api_expected_status_codes:
+  - 201
+
+# --- Local audit copy of payload + API response (best-effort, non-fatal) ---
+fact_inventory_gather_audit_enabled: false
+fact_inventory_gather_audit_become: true
+fact_inventory_gather_audit_path: /var/log/fact-inventory/payload.json
+fact_inventory_gather_audit_owner: root
+fact_inventory_gather_audit_group: root
+fact_inventory_gather_audit_mode: "0600"
+fact_inventory_gather_audit_create_parent_dir: true
+fact_inventory_gather_audit_dir_owner: root
+fact_inventory_gather_audit_dir_group: root
+fact_inventory_gather_audit_dir_mode: "0755"
+
+# --- Output and logging control (stdout/stderr) ---
+fact_inventory_gather_suppress_audit_output: true
+fact_inventory_gather_suppress_collection_output: false
+fact_inventory_gather_suppress_submit_output: false
+fact_inventory_gather_suppress_validate_output: false

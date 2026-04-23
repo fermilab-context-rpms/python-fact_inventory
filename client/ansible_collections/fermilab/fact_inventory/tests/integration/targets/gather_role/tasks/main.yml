@@ -1,0 +1,50 @@
+---
+- name: Load test variable overrides
+  ansible.builtin.include_vars: main.yml
+
+- name: Copy mock fact_inventory API server
+  ansible.builtin.copy:
+    src: mock_api.py
+    dest: "{{ output_dir }}/mock_api.py"
+    mode: "0755"
+
+- name: Start mock fact_inventory API (async)
+  ansible.builtin.command: "python3 {{ output_dir }}/mock_api.py"
+  args:
+    chdir: "{{ output_dir }}"
+  async: 120
+  poll: 0
+  register: gather_test_mock_api
+  changed_when: false
+
+- name: Wait for mock API to accept connections
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: 8123
+    timeout: 10
+
+- name: Run fermilab.fact_inventory.gather role
+  ansible.builtin.include_role:
+    name: fermilab.fact_inventory.gather
+
+- name: Verify audit file was written
+  ansible.builtin.stat:
+    path: "{{ fact_inventory_gather_audit_path }}"
+  register: gather_test_audit_stat
+
+- name: Assert successful submission and audit content
+  ansible.builtin.assert:
+    that:
+      - gather_test_audit_stat.stat.exists
+      - fact_inventory_gather_api_result.status == 201
+      - fact_inventory_gather_api_payload.package_facts is defined
+      - fact_inventory_gather_api_payload.system_facts is defined
+      - "'//' not in fact_inventory_gather_api_url.replace('http://', '').replace('https://', '')"
+
+- name: Stop mock fact_inventory API
+  ansible.builtin.async_status:
+    jid: "{{ gather_test_mock_api.ansible_job_id }}"
+    mode: cleanup
+  changed_when: false
+  failed_when: false
+  when: gather_test_mock_api.ansible_job_id is defined

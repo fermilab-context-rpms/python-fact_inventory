@@ -1,0 +1,50 @@
+---
+- name: Validate API server scheme
+  ansible.builtin.fail:
+    msg: >-
+      fact_inventory_gather_api_server must start with http:// or https://
+      (got: {{ fact_inventory_gather_api_server }})
+  when: fact_inventory_gather_api_server is not match('^https?://')
+
+- name: Warn when using non-loopback HTTP
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: Not using HTTPS for non-loopback url. Consider switching to HTTPS.
+      fact_inventory_gather_api_server -> {{ fact_inventory_gather_api_server }}
+  when:
+    - fact_inventory_gather_api_server is match('^http://')
+    - not fact_inventory_gather_api_server is match('^http://(127\.0\.0\.1|localhost|\\[::1\\])')
+
+- name: Compose and normalize the fact_inventory API URL
+  ansible.builtin.set_fact:
+    fact_inventory_gather_api_url: >-
+      {{
+        (fact_inventory_gather_api_server | regex_replace('/+$', ''))
+        ~ '/'
+        ~ (
+          [
+            fact_inventory_gather_api_base_path
+            | regex_replace('/+', '/')
+            | regex_replace('^/', '')
+            | regex_replace('/$', ''),
+            fact_inventory_gather_api_endpoint
+            | regex_replace('/+', '/')
+            | regex_replace('^/', '')
+          ]
+          | reject('equalto', '')
+          | join('/')
+        )
+      }}
+  no_log: "{{ fact_inventory_gather_suppress_collection_output | bool }}"
+
+- name: Gather ansible system facts
+  ansible.builtin.setup:
+    gather_subset: "{{ fact_inventory_gather_facts_subset }}"
+    fact_path: "{{ fact_inventory_gather_local_facts_dir }}"
+  become: "{{ fact_inventory_gather_facts_become | bool }}"
+  no_log: "{{ fact_inventory_gather_suppress_collection_output | bool }}"
+
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: "{{ fact_inventory_gather_package_manager }}"
+  no_log: "{{ fact_inventory_gather_suppress_collection_output | bool }}"

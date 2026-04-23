@@ -1,0 +1,432 @@
+"""Add CMDB views over the fact_inventory JSONB columns.
+
+Revision ID: 000000000001
+Revises: 000000000000
+
+PostgreSQL-only. Creates decomposed read-only views for convenient access to
+host, network, hardware, and OS data from fact_inventory JSONB columns:
+
+Network views:
+  1. cmdb_host_interfaces: All interfaces with basic metadata
+  2. cmdb_host_interface_ipv4_addresses: IPv4 addresses per interface
+  3. cmdb_host_interface_ipv6_addresses: IPv6 addresses per interface
+
+Hardware views:
+  4. cmdb_host_hardware: CPU, architecture, chassis, and hardware metadata
+  5. cmdb_host_storage_devices: Storage device metadata with partition info
+
+OS view:
+  6. cmdb_host_os_info: Operating system metadata (kernel, distribution)
+
+All extracted columns are documented with JSON path references in the
+per-view docstrings below.
+
+Views hold no data, so this revision is non-destructive in both directions.
+Because every view is created with CREATE OR REPLACE, re-running the upgrade
+over an existing set is also safe.
+"""
+
+from alembic import op
+
+__all__ = [
+    "downgrade",
+    "upgrade",
+]
+
+# Revision identifiers, used by Alembic.
+revision = "000000000001"
+down_revision = "000000000000"
+branch_labels = None
+depends_on = None
+
+# Views in dependency order: the ipv4/ipv6 address views select from
+# cmdb_host_interfaces, so it must be created first and dropped last.
+CMDB_VIEWS = (
+    "cmdb_host_interfaces",
+    "cmdb_host_interface_ipv4_addresses",
+    "cmdb_host_interface_ipv6_addresses",
+    "cmdb_host_hardware",
+    "cmdb_host_storage_devices",
+    "cmdb_host_os_info",
+)
+
+
+def _is_postgresql() -> bool:
+    """Return True when running against PostgreSQL."""
+    return op.get_context().dialect.name == "postgresql"
+
+
+def upgrade() -> None:
+    """Create all CMDB views. No-op on non-PostgreSQL dialects."""
+    if not _is_postgresql():
+        return
+
+    _create_cmdb_host_interfaces()
+    _create_cmdb_host_interface_ipv4_addresses()
+    _create_cmdb_host_interface_ipv6_addresses()
+    _create_cmdb_host_hardware()
+    _create_cmdb_host_storage_devices()
+    _create_cmdb_host_os_info()
+
+
+def downgrade() -> None:
+    """Drop all CMDB views. No-op on non-PostgreSQL dialects.
+
+    Dropped in reverse creation order so dependent views are removed before
+    the cmdb_host_interfaces view they select from.
+    """
+    if not _is_postgresql():
+        return
+
+    for view in reversed(CMDB_VIEWS):
+        op.execute(f"DROP VIEW IF EXISTS {view}")
+
+
+# --- View definitions -------------------------------------------------------
+
+
+def _create_cmdb_host_interfaces() -> None:
+    """Create cmdb_host_interfaces view.
+
+    Extracts all non-loopback interfaces from system_facts JSONB.
+    One row per interface per stored record.
+
+    Filtering:
+      - Only extracts actual network interfaces (those with 'device' field)
+      - Excludes metadata objects like default_ipv4, python, selinux, etc.
+      - Excludes loopback interface (lo)
+
+    The raw per-interface JSONB is exposed as ``interface_data`` so the
+    dependent address views can read it directly instead of joining back to
+    fact_inventory, which under hash partitioning would scan every partition.
+
+    JSON paths:
+      - fqdn: system_facts.fqdn
+      - device_type: system_facts.{interface_name}.type
+      - mac_address: system_facts.{interface_name}.macaddress
+      - is_active: system_facts.{interface_name}.active
+      - mtu: system_facts.{interface_name}.mtu
+    """
+    op.execute("""
+    CREATE OR REPLACE VIEW cmdb_host_interfaces AS
+    SELECT fi.id AS inventory_id
+         , fi.client_address
+         , fi.updated_at
+         , (fi.system_facts ->> 'machine_id') AS machine_id
+         , (fi.system_facts ->> 'fqdn') AS fqdn
+         , iface_key AS interface_name
+         , (iface_data ->> 'type') AS device_type
+         , NULLIF((iface_data ->> 'macaddress'), '')::macaddr AS mac_address
+         , (iface_data ->> 'active')::boolean AS is_active
+         , (iface_data ->> 'mtu')::integer AS mtu
+         , iface_data AS interface_data
+      FROM fact_inventory AS fi
+     CROSS JOIN LATERAL jsonb_each(fi.system_facts)
+           AS ifaces(iface_key, iface_data)
+     WHERE iface_data ? 'device'
+       AND iface_key IS DISTINCT FROM 'lo'
+    """)
+
+
+def _create_cmdb_host_interface_ipv4_addresses() -> None:
+    """Create cmdb_host_interface_ipv4_addresses view.
+
+    Extracts IPv4 addresses from interfaces. Handles both:
+      - Structured objects, as emitted by Ansible setup facts:
+        {"address": "10.0.0.1", "prefix": "24", "netmask": "255.255.255.0",
+         "network": "10.0.0.0", "broadcast": "10.0.0.255"}
+      - Array of strings: ["10.0.0.1", "10.0.0.0/24", ...]
+
+    One row per address per interface per stored record.
+
+    In the object form ``address`` is a bare host address carrying no prefix;
+    the mask is supplied in a sibling ``prefix`` field. Casting ``address``
+    alone would yield /32 with a self-referential network and broadcast, so
+    the two are recombined into a single native ``inet`` value:
+
+        set_masklen(address::inet, prefix::int)
+
+    Every other column is then derived from that one value using the built-in
+    inet accessors, rather than reading the redundant netmask/network/
+    broadcast fields the facts also provide. set_masklen is STRICT, so when
+    no prefix is present it returns NULL and the COALESCE falls back to the
+    plain cast - which is what the string form needs, since there the prefix
+    may be embedded in the value ("10.0.0.0/24") or absent entirely.
+
+    Filtering: Excludes 127.0.0.0/8 addresses (loopback already filtered at
+    interface level). Preserves NULL addresses for auditing downstream filtering.
+
+    JSON paths:
+      - ipv4 data: system_facts.{interface_name}.ipv4
+    """
+    op.execute("""
+    CREATE OR REPLACE VIEW cmdb_host_interface_ipv4_addresses AS
+    SELECT ci.inventory_id
+         , ci.client_address
+         , ci.machine_id
+         , ci.updated_at
+         , ci.fqdn
+         , ci.interface_name
+         , ci.device_type
+         , ci.mac_address
+         , ci.is_active
+         , addr_inet AS ipv4_cidr
+         , host(addr_inet)::inet AS ipv4_address
+         , netmask(addr_inet) AS ipv4_netmask
+         , masklen(addr_inet)::smallint AS ipv4_prefix
+         , network(addr_inet) AS ipv4_network
+         , broadcast(addr_inet)::inet AS ipv4_broadcast
+      FROM cmdb_host_interfaces AS ci
+      LEFT JOIN LATERAL (
+        -- Handle structured object: {"address": "...", "prefix": "24", ...}
+        SELECT COALESCE(
+                   set_masklen(
+                       (ci.interface_data -> 'ipv4' ->> 'address')::inet
+                     , (ci.interface_data -> 'ipv4' ->> 'prefix')::int
+                   )
+                 , (ci.interface_data -> 'ipv4' ->> 'address')::inet
+               ) AS addr_inet
+         WHERE jsonb_typeof(ci.interface_data -> 'ipv4') = 'object'
+        UNION ALL
+        -- Handle array of strings: ["10.0.0.1", "10.0.0.0/24", ...]
+        SELECT jsonb_array_elements_text(ci.interface_data -> 'ipv4')::inet
+         WHERE jsonb_typeof(ci.interface_data -> 'ipv4') = 'array'
+    ) AS addr ON TRUE
+     WHERE addr_inet IS NULL
+        OR NOT (addr_inet << inet '127.0.0.0/8')
+    """)
+
+
+def _create_cmdb_host_interface_ipv6_addresses() -> None:
+    """Create cmdb_host_interface_ipv6_addresses view.
+
+    Extracts IPv6 addresses from interfaces. Handles both:
+      - Array of objects, as emitted by Ansible setup facts:
+        [{"address": "fe80::1", "prefix": "64", "scope": "link"}, ...]
+      - Array of strings: ["::1", "fe80::1", ...]
+
+    One row per address per interface per stored record.
+
+    As with IPv4, ``address`` in the object form carries no prefix, so it is
+    recombined with the sibling ``prefix`` field into a single native ``inet``
+    value via set_masklen() and every other column is derived from that.
+    set_masklen is STRICT, so a missing prefix falls back to the plain cast.
+
+    Both shapes are arrays, so the two branches are distinguished by the
+    element type rather than the container type.
+
+    Filtering: Excludes ::1 address (loopback interface already filtered at
+    interface level). Preserves NULL addresses for auditing downstream filtering.
+
+    JSON paths:
+      - ipv6 data: system_facts.{interface_name}.ipv6
+    """
+    op.execute("""
+    CREATE OR REPLACE VIEW cmdb_host_interface_ipv6_addresses AS
+    SELECT ci.inventory_id
+         , ci.client_address
+         , ci.updated_at
+         , ci.machine_id
+         , ci.fqdn
+         , ci.interface_name
+         , ci.device_type
+         , ci.mac_address
+         , ci.is_active
+         , addr_inet AS ipv6_cidr
+         , host(addr_inet)::inet AS ipv6_address
+         , masklen(addr_inet)::smallint AS ipv6_prefix
+         , network(addr_inet) AS ipv6_network
+         , scope AS ipv6_scope
+      FROM cmdb_host_interfaces AS ci
+      LEFT JOIN LATERAL (
+        SELECT COALESCE(
+                   set_masklen((elem ->> 'address')::inet, (elem ->> 'prefix')::int)
+                 , (elem ->> 'address')::inet
+               ) AS addr_inet
+             , (elem ->> 'scope') AS scope
+          FROM jsonb_array_elements(ci.interface_data -> 'ipv6') AS elem
+         WHERE jsonb_typeof(ci.interface_data -> 'ipv6') = 'array'
+           AND jsonb_typeof(elem) = 'object'
+        UNION ALL
+        SELECT (elem #>> '{}')::inet
+             , NULL
+          FROM jsonb_array_elements(ci.interface_data -> 'ipv6') AS elem
+         WHERE jsonb_typeof(ci.interface_data -> 'ipv6') = 'array'
+           AND jsonb_typeof(elem) = 'string'
+      ) AS addr ON TRUE
+     WHERE addr_inet IS NULL
+        OR host(addr_inet)::inet IS DISTINCT FROM inet '::1'
+    """)
+
+
+def _create_cmdb_host_hardware() -> None:
+    """Create cmdb_host_hardware view.
+
+    Extracts CPU, architecture, chassis, and hardware identification metadata.
+    One row per stored record; because fact_inventory is append-only, a host
+    with history contributes one row per submission. Filter on updated_at or
+    inventory_id to select a single point in time.
+
+    CPU information:
+      - Manufacturer: extracted from processor array (index 1)
+      - Model name: extracted from processor array (index 2)
+      - Socket count: physical socket count (typically 1)
+      - Core count: physical cores per socket
+      - Thread count: logical vCPUs
+
+    Hardware information:
+      - Product model: e.g., "NUC10i7FNH"
+      - Board model: e.g., "NUC10i7FNB"
+      - Product UUID/serial: hardware identification
+      - Chassis form factor: e.g., "Mini PC", "Desktop", "Laptop", "Server"
+      - System architecture: e.g., "x86_64", "aarch64"
+      - Memory info (RAM in bytes)
+
+    JSON paths:
+      - board_name: system_facts.board_name
+      - product_name: system_facts.product_name
+      - product_uuid: system_facts.product_uuid
+      - product_serial: system_facts.product_serial
+      - form_factor: system_facts.form_factor
+      - machine: system_facts.machine
+      - processor: system_facts.processor
+      - processor_count: system_facts.processor_count
+      - processor_cores: system_facts.processor_cores
+      - processor_vcpus: system_facts.processor_vcpus
+    """
+    op.execute("""
+    CREATE OR REPLACE VIEW cmdb_host_hardware AS
+    SELECT fi.id AS inventory_id
+         , fi.client_address
+         , fi.updated_at
+         , (fi.system_facts ->> 'machine_id') AS machine_id
+         , (fi.system_facts ->> 'board_name') AS board_model
+         , (fi.system_facts ->> 'product_name') AS product_name
+         , (fi.system_facts ->> 'product_uuid') AS product_uuid
+         , (fi.system_facts ->> 'product_serial') AS product_serial
+         , (fi.system_facts ->> 'form_factor') AS chassis_form_factor
+         , (fi.system_facts ->> 'machine') AS system_arch
+         , (fi.system_facts -> 'processor' ->> 1) AS cpu_manufacturer
+         , (fi.system_facts -> 'processor' ->> 2) AS cpu_model_name
+         , (fi.system_facts ->> 'processor_count')::integer AS cpu_socket_count
+         , (fi.system_facts ->> 'processor_cores')::integer AS cpu_core_count
+         , (fi.system_facts ->> 'processor_vcpus')::integer AS cpu_thread_count
+         , ((fi.system_facts ->> 'memtotal_mb')::bigint * 1048576) AS ram_bytes
+      FROM fact_inventory AS fi
+    """)
+
+
+def _create_cmdb_host_storage_devices() -> None:
+    """Create cmdb_host_storage_devices view.
+
+    Extracts physical and virtual storage device metadata.
+    One row per device per stored record. Includes partition metadata as JSONB.
+
+    Device types:
+      - Physical: sda, sdb, nvme0n1 (HDD/SSD)
+      - Virtual: zram0, loop, dm-* (device mapper)
+      - Removable: USB drives, memory cards
+
+    Metadata:
+      - Device name: e.g., "sda"
+      - Model/Vendor/Serial: hardware identification
+      - Size: derived from sectors * sector_size
+      - Virtual: true for device mapper, zram, loop
+      - Removable: true for USB/removable, false for fixed
+      - Fibre: true when a device link identifies Fibre Channel or a
+        NAA-6 WWN
+      - WWN: World Wide Name for device identification
+      - Partitions: aggregated as JSONB
+
+    The fact data is inconsistently typed: ``virtual`` arrives as a JSON
+    number while ``removable`` arrives as a string. Comparing the ``->>``
+    text extraction handles both uniformly.
+
+    ``links.ids`` is an array, so Fibre detection tests each element rather
+    than regexing the rendered JSON, which would otherwise match text in
+    adjacent list entries. The pattern is anchored so that 'wwn-0x6' matches
+    only a leading NAA-6 identifier.
+
+    No ORDER BY is defined; a view's ordering is not preserved by an outer
+    query, so sorting here would only cost a sort on every access.
+
+    JSON paths:
+      - devices: system_facts.devices
+      - device metadata: system_facts.devices.{device_name}
+      - partitions: system_facts.devices.{device_name}.partitions
+    """
+    op.execute("""
+    CREATE OR REPLACE VIEW cmdb_host_storage_devices AS
+    SELECT fi.id AS inventory_id
+         , fi.client_address
+         , fi.updated_at
+         , (fi.system_facts ->> 'machine_id') AS machine_id
+         , devices.device_name
+         , (devices.device_data ->> 'model') AS device_model
+         , (devices.device_data ->> 'vendor') AS device_vendor
+         , (devices.device_data ->> 'serial') AS device_serial
+         , (devices.device_data ->> 'wwn') AS device_wwn
+         , (devices.device_data ->> 'sectors')::bigint
+           * (devices.device_data ->> 'sectorsize')::bigint
+           AS device_size_bytes
+         , COALESCE((devices.device_data ->> 'virtual') = '1', false)
+           AS is_virtual
+         , COALESCE((devices.device_data ->> 'removable') = '1', false)
+           AS is_removable
+         , COALESCE(
+               EXISTS (
+                   SELECT 1
+                     FROM jsonb_array_elements_text(
+                              devices.device_data -> 'links' -> 'ids'
+                          ) AS link_id
+                    WHERE link_id ~ '^(fc-|wwn-0x6)'
+               )
+             , false
+           ) AS is_fibre
+         , CASE
+             WHEN (devices.device_data ? 'partitions')
+                 AND devices.device_data -> 'partitions' != '{}'::jsonb
+             THEN devices.device_data -> 'partitions'
+           END AS partitions
+      FROM fact_inventory AS fi
+     CROSS JOIN LATERAL jsonb_each(fi.system_facts -> 'devices')
+           AS devices(device_name, device_data)
+    """)
+
+
+def _create_cmdb_host_os_info() -> None:
+    """Create cmdb_host_os_info view.
+
+    Extracts operating system and machine metadata.
+    One row per stored record; because fact_inventory is append-only, a host
+    with history contributes one row per submission. Filter on updated_at or
+    inventory_id to select a single point in time.
+
+    Operating System Information:
+      - os_name: Distribution name (Fedora, AlmaLinux, RedHat, etc.)
+      - os_version: Full version string from distribution_version field
+
+    Host metadata:
+      - fqdn: Fully qualified domain name
+      - machine_id: systemd machine ID
+      - kernel: Kernel version
+
+    JSON paths:
+      - fqdn: system_facts.fqdn
+      - machine_id: system_facts.machine_id
+      - distribution: system_facts.distribution
+      - distribution_version: system_facts.distribution_version
+      - kernel: system_facts.kernel
+    """
+    op.execute("""
+    CREATE OR REPLACE VIEW cmdb_host_os_info AS
+    SELECT fi.id AS inventory_id
+         , fi.client_address
+         , fi.updated_at
+         , (fi.system_facts ->> 'machine_id') AS machine_id
+         , (fi.system_facts ->> 'fqdn') AS fqdn
+         , (fi.system_facts ->> 'distribution') AS os_name
+         , (fi.system_facts ->> 'distribution_version') AS os_version
+         , (fi.system_facts ->> 'kernel') AS kernel
+      FROM fact_inventory AS fi
+    """)

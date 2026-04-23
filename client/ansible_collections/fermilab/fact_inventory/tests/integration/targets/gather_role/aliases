@@ -1,0 +1,3 @@
+# This target starts a local mock HTTP server on 127.0.0.1:8123 - no external
+# network access required. Tests are configured to use become: false to avoid
+# requiring root privileges.

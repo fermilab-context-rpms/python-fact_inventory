@@ -1,0 +1,12 @@
+---
+- name: Fail if and only if the API response status is unexpected
+  ansible.builtin.fail:
+    msg: >-
+      API call failed:
+      status={{ fact_inventory_gather_api_result.status | default('unknown') }},
+      expected one of={{ fact_inventory_gather_api_expected_status_codes | join(', ') }},
+      msg={{ fact_inventory_gather_api_result.msg | default('no details') }}
+  when: >
+    fact_inventory_gather_api_result.status | default(0)
+    not in fact_inventory_gather_api_expected_status_codes
+  no_log: "{{ fact_inventory_gather_suppress_validate_output | bool }}"

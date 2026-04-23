@@ -1,0 +1,30 @@
+---
+- name: Ensure audit directory exists
+  ansible.builtin.file:
+    path: "{{ fact_inventory_gather_audit_path | dirname }}"
+    state: directory
+    owner: "{{ fact_inventory_gather_audit_dir_owner }}"
+    group: "{{ fact_inventory_gather_audit_dir_group }}"
+    mode: "{{ fact_inventory_gather_audit_dir_mode }}"
+  when: fact_inventory_gather_audit_create_parent_dir | bool
+  become: "{{ fact_inventory_gather_audit_become | bool }}"
+  failed_when: false
+  no_log: "{{ fact_inventory_gather_suppress_audit_output | bool }}"
+
+- name: Write audit file with payload and response
+  ansible.builtin.copy:
+    dest: "{{ fact_inventory_gather_audit_path }}"
+    owner: "{{ fact_inventory_gather_audit_owner }}"
+    group: "{{ fact_inventory_gather_audit_group }}"
+    mode: "{{ fact_inventory_gather_audit_mode }}"
+    content: >
+      {{
+        {
+          "fact_api_post_payload": fact_inventory_gather_api_payload,
+          "fact_api_post_result": fact_inventory_gather_api_result
+        } | to_nice_json
+      }}
+  become: "{{ fact_inventory_gather_audit_become | bool }}"
+  failed_when: false
+  changed_when: false
+  no_log: "{{ fact_inventory_gather_suppress_audit_output | bool }}"

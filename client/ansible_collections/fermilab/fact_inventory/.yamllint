@@ -1,0 +1,27 @@
+---
+# YAML style configuration for the fermilab.fact_inventory collection.
+# Used both by ansible-lint and by standalone yamllint runs.
+
+rules:
+  braces:
+    max-spaces-inside: 1
+  brackets:
+    max-spaces-inside: 1
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: disable
+  document-start: enable
+  empty-lines:
+    max: 2
+  indentation:
+    spaces: 2
+    indent-sequences: whatever
+  key-duplicates: enable
+  line-length:
+    max: 120
+  new-line-at-end-of-file: enable
+  new-lines:
+    type: unix
+  trailing-spaces: enable
+  truthy:
+    allowed-values: ["true", "false", "yes", "no"]

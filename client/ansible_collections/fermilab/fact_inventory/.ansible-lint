@@ -1,0 +1,20 @@
+---
+# Ansible-lint configuration for the fermilab.fact_inventory collection.
+# Run from this directory with: ansible-lint
+# Or from the repo root with: pre-commit run --all-files
+
+profile: production
+offline: true
+exclude_paths:
+  - tests/output/
+  - .cache/
+  - __pycache__/
+  - "*.tar.gz"
+use_default_rules: true
+skip_list:
+  # Collection does not yet maintain a formal changelog.
+  # Remove this skip and add changelogs/changelog.yaml when releases begin.
+  - galaxy[no-changelog]
+  # Role intentionally uses the collection-scoped fact_inventory_gather_* prefix
+  # to avoid collisions across roles, rather than the bare role_name prefix.
+  - var-naming[no-role-prefix]

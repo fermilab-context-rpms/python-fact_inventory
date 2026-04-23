@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  role_name: gather
+  author: Fermilab
+  description: >-
+    Collect Ansible system/package/local facts and submit them to the
+    fact_inventory API, with an optional local audit copy.
+  company: Fermilab
+  license: AGPL-3.0-or-later
+  min_ansible_version: "2.10"
+  platforms:
+    - name: EL
+    - name: Fedora
+    - name: Debian
+  galaxy_tags:
+    - facts
+    - inventory
+
+dependencies: []

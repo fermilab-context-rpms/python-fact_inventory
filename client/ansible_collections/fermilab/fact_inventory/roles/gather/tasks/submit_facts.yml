@@ -1,0 +1,13 @@
+---
+- name: POST payload to fact_inventory API
+  ansible.builtin.uri:
+    url: "{{ fact_inventory_gather_api_url }}"
+    method: POST
+    body_format: json
+    body: "{{ fact_inventory_gather_api_payload | to_nice_json(indent=0) }}"
+    status_code: "{{ fact_inventory_gather_api_expected_status_codes }}"
+    validate_certs: "{{ fact_inventory_gather_api_validate_certs | bool }}"
+    ca_path: "{{ fact_inventory_gather_api_ca_path | default(omit, true) }}"
+  register: fact_inventory_gather_api_result
+  failed_when: false
+  no_log: "{{ fact_inventory_gather_suppress_submit_output | bool }}"

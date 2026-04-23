@@ -1,0 +1,58 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.3
+    hooks:
+      - id: ruff-format
+      - id: ruff-check
+        args: [--fix]
+
+  - repo: https://github.com/JoC0de/pre-commit-prettier
+    rev: v3.9.6
+    hooks:
+      - id: prettier
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-ast
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.3.1
+    hooks:
+      - id: mypy
+        name: Check variable types (mypy)
+        files: ^fact_inventory/
+        args:
+          - "--pretty"
+          - "--show-error-codes"
+        additional_dependencies:
+          - advanced-alchemy
+          - litestar
+          - pydantic
+          - pydantic_settings
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.411
+    hooks:
+      - id: pyright
+        name: Check variable types (pyright)
+        files: ^fact_inventory/
+
+  - repo: local
+    hooks:
+      - id: ansible-lint
+        name: Lint Ansible collection
+        entry: bash -c 'cd client/ansible_collections/fermilab/fact_inventory && uv run ansible-lint'
+        language: system
+        files: ^client/ansible_collections/
+        pass_filenames: false
+        always_run: false
