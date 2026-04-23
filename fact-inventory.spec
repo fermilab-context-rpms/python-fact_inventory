@@ -1,0 +1,52 @@
+Name:		fact-inventory
+Version:	0.0.1
+Release:	1%{?dist}
+
+License:	AGPL-3.0-or-later
+
+URL:		https://github.com/fermitools/python-fact_inventory
+Source0:	%{url}/archive/%{version}/%{name}-%{version}.tar.gz
+
+BuildArch:	noarch
+BuildRequires:	redhat-rpm-config
+BuildRequires:	ansible-core
+
+Summary:	System fact inventory collection and storage
+
+%description
+Fact inventory system for collecting, storing, and managing system facts
+across infrastructure.
+
+
+%package gather
+Summary:	Fact inventory compatible Ansible agent
+Requires:	ansible-core
+
+%description gather
+Provides a fact-inventory compatible Ansible agent for collecting system
+and package facts from target hosts and submitting them to the fact-inventory API.
+
+
+%prep
+%autosetup
+
+
+%build
+
+
+%install
+install -m 0755 -d %{buildroot}%{_libexecdir}/%{name}-gather
+install -m 0644 gather.yml %{buildroot}%{_libexecdir}/%{name}-gather/
+
+
+%check
+ansible-playbook --syntax-check gather.yml
+
+
+%files gather
+%license LICENSE
+%{_libexecdir}/%{name}-gather/gather.yml
+
+%changelog
+*
+- Initial package

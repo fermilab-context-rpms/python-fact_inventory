@@ -1,0 +1,85 @@
+---
+# This playbook:
+#   collects system, package, and local facts
+#   writes an audit copy (best-effort, non-fatal)
+#   submits the same payload to the fact_inventory API
+#
+# Usage:
+#   ansible-playbook -K -i localhost, -c local gather.yml
+#   ansible-playbook -K -e "api_server=https://fqdn" gather.yml
+#   ansible-playbook -K -e "@overide_vars.yml" gather.yml
+#
+
+- name: Gather facts on system
+  hosts: all
+  gather_facts: no # gather with custom logic below
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    custom_fact_path: /etc/ansible/facts.d
+
+    api_server: http://127.0.0.1:8000
+    base_url: /fact_inventory
+    api_target: /api/v1/facts
+    api_url: "{{ api_server }}{{ base_url }}{{ api_target }}"
+
+    audit_file_create: false
+    audit_file: /var/log/fact-inventory-payload.json
+
+  tasks:
+    - name: Gather ansible system facts
+      become: true
+      ansible.builtin.setup:
+        gather_subset:
+          - "all"
+          - "!facter"
+          - "!ohai"
+        fact_path: "{{ custom_fact_path }}"
+
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Build POST payload
+      ansible.builtin.set_fact:
+        post_payload:
+          system_facts: >-
+            {{
+              ansible_facts
+              | dict2items
+              | rejectattr('key', 'in', ['ansible_local', 'packages'])
+              | items2dict
+            }}
+          package_facts: "{{ ansible_facts.packages | default({}) }}"
+          local_facts: "{{ ansible_facts.ansible_local | default({}) }}"
+          agent_facts:
+            ansible_version: "{{ ansible_version }}"
+            url: "{{ api_url }}"
+
+    - name: "Check if {{ audit_file | dirname }} exists"
+      ansible.builtin.stat:
+        path: "{{ audit_file | dirname }}"
+      become: true # non-root might not have access
+      when: audit_file_create | bool
+      register: audit_dir_stat
+
+    - name: Write audit copy of post_payload
+      ansible.builtin.copy:
+        dest: "{{ audit_file }}"
+        mode: "0600"
+        content: "{{ post_payload | to_nice_json }}"
+      become: true
+      when:
+        - audit_file_create | bool
+        - audit_dir_stat.stat.isdir is defined
+        - audit_dir_stat.stat.isdir
+      changed_when: false
+      failed_when: false
+
+    - name: POST post_payload to fact_inventory API
+      ansible.builtin.uri:
+        url: "{{ api_url }}"
+        method: POST
+        body_format: json
+        body: "{{ post_payload | to_nice_json(indent=0) }}"
+        status_code: 201

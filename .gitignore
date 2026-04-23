@@ -1,0 +1,32 @@
+# Python-generated files
+__pycache__/
+.pytest_cache/*
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+uv.lock
+.python-version
+.coverage
+*.*,cover
+coverage.json
+coverage.xml
+
+# Virtual environments
+.venv
+
+# vim files
+*.sw[po]
+
+# .env files
+.env
+.env.*
+!.env.testing
+
+# package files
+*.tar.gz
+*.rpm
+BUILD/*
+RPMS/*
+SRPMS/*
