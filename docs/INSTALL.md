@@ -23,6 +23,18 @@ cd python-fact_inventory
 
 2. **Install dependencies:**
 
+**NOTE**: For a fully isolated python:
+
+```bash
+uv python install 3
+$(uv python find 3) -m venv --copies .venv
+echo "installing dependencies"
+source .venv/bin/activate
+uv sync --link-mode=copy
+```
+
+**NOTE**: For use of a homedir uv cache
+
 ```bash
 uv sync
 ```
