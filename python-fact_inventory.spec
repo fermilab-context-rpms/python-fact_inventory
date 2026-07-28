@@ -1,4 +1,4 @@
-Name:		fact-inventory
+Name:		python-fact_inventory
 Version:	0.0.1
 Release:	1%{?dist}
 
@@ -18,11 +18,11 @@ Fact inventory system for collecting, storing, and managing system facts
 across infrastructure.
 
 
-%package gather
+%package -n fact-inventory-gather
 Summary:	Fact inventory compatible Ansible agent
 Requires:	ansible-core
 
-%description gather
+%description -n fact-inventory-gather
 Provides a fact-inventory compatible Ansible agent for collecting system
 and package facts from target hosts and submitting them to the fact-inventory API.
 
@@ -35,18 +35,18 @@ and package facts from target hosts and submitting them to the fact-inventory AP
 
 
 %install
-install -m 0755 -d %{buildroot}%{_libexecdir}/%{name}-gather
-install -m 0644 gather.yml %{buildroot}%{_libexecdir}/%{name}-gather/
+install -m 0755 -d %{buildroot}%{_libexecdir}/fact-inventory-gather
+install -m 0644 gather.yml %{buildroot}%{_libexecdir}/fact-inventory-gather/
 
 
 %check
 ansible-playbook --syntax-check gather.yml
 
 
-%files gather
+%files -n fact-inventory-gather
 %license LICENSE
-%{_libexecdir}/%{name}-gather/gather.yml
+%{_libexecdir}/fact-inventory-gather/gather.yml
 
 %changelog
-* Mon July 27 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.1
+* Mon Jul 27 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.1
 - Initial package

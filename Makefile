@@ -1,6 +1,6 @@
 current_dir:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 version:=$(shell git describe --tags --abbrev=0 2>/dev/null || grep -m 1 'version = ' pyproject.toml | sed 's/.*version = "//' | sed 's/".*//')
-name:=fact-inventory
+name:=python-fact_inventory
 
 _default:
 	@echo "Perhaps you want:"
