@@ -15,6 +15,7 @@ coverage.xml
 
 # Virtual environments
 .venv
+.python3
 
 # vim files
 *.sw[po]

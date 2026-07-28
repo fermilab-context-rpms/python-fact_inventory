@@ -26,8 +26,9 @@ cd python-fact_inventory
 **NOTE**: For a fully isolated python:
 
 ```bash
+export UV_PYTHON_INSTALL_DIR="$(pwd)/.python3"
 uv python install 3
-$(uv python find 3) -m venv --copies .venv
+uv venv --python 3 --relocatable --seed --link-mode copy --prompt fact_inventory
 echo "installing dependencies"
 source .venv/bin/activate
 uv sync --link-mode=copy
