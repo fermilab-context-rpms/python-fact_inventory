@@ -48,5 +48,5 @@ ansible-playbook --syntax-check gather.yml
 %{_libexecdir}/%{name}-gather/gather.yml
 
 %changelog
-*
+* Mon July 27 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.1
 - Initial package
