@@ -45,7 +45,7 @@ DB_POOL_SIZE
     The database connection pool size. Default: 10. Valid: >=1.
 
 DB_POOL_MAX_OVERFLOW
-    Maximum connections beyond pool size. Default: 20. Valid: >=0.
+    Maximum connections beyond pool size. Default: 5. Valid: >=0.
 
 DB_POOL_TIMEOUT
     Seconds to wait for a connection from the pool. Default: 30. Valid: >=1.
@@ -256,7 +256,7 @@ class Settings(BaseSettings):
 
     database_uri: str | None = Field(default=None)
     db_pool_size: int = Field(default=10, ge=1)
-    db_pool_max_overflow: int = Field(default=20, ge=0)
+    db_pool_max_overflow: int = Field(default=5, ge=0)
     db_pool_timeout: int = Field(default=30, ge=1)
 
     api_rate_limit_unit: DurationUnit = "hour"
