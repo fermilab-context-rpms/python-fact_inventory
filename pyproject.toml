@@ -12,6 +12,7 @@ dependencies = [
   "pydantic-settings>=2.13.1",
   "sqlalchemy[aiosqlite,postgresql-asyncpg]>=2.0.51",
   "structlog>=25.5.0",
+  "uvicorn>=0.52.0"
 ]
 
 [dependency-groups]
