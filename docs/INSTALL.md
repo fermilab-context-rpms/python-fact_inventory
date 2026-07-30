@@ -28,7 +28,7 @@ cd python-fact_inventory
 ```bash
 export UV_PYTHON_INSTALL_DIR="$(pwd)/.python3"
 uv python install 3
-uv venv --python 3 --relocatable --seed --link-mode copy --prompt fact_inventory
+uv venv --python 3 --seed --link-mode copy --prompt fact_inventory
 echo "installing dependencies"
 source .venv/bin/activate
 uv sync --link-mode=copy
