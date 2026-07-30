@@ -1,5 +1,5 @@
 Name:		python-fact_inventory
-Version:	0.0.1
+Version:	0.0.2
 Release:	1%{?dist}
 
 License:	AGPL-3.0-or-later
@@ -48,5 +48,8 @@ ansible-playbook --syntax-check gather.yml
 %{_libexecdir}/fact-inventory-gather/gather.yml
 
 %changelog
+* Thu Jul 30 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.2
+- Improve audit log from gather.yml
+
 * Mon Jul 27 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.1
 - Initial package
