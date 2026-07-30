@@ -48,6 +48,7 @@ from fact_inventory.lib.settings import settings
 from fact_inventory.presentation.api.router import create_router as create_api_router
 from fact_inventory.presentation.health import health_check
 from fact_inventory.presentation.ready import ready_check
+from fact_inventory.presentation.root import root_handler
 
 __all__ = ["create_router"]
 
@@ -67,7 +68,7 @@ def create_router(path: str = "/") -> Router:
     Router
         Fully assembled router ready to pass to Litestar.
     """
-    route_handlers: list[Any] = [create_api_router()]
+    route_handlers: list[Any] = [root_handler, create_api_router()]
 
     if settings.enable_health_endpoint:
         route_handlers.append(health_check)
