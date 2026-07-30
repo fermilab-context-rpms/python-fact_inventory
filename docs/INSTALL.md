@@ -303,7 +303,7 @@ Two possible causes:
 
 1. **Total request body exceeds `MAX_REQUEST_BODY_MB`**
    - Increase `MAX_REQUEST_BODY_MB`
-   - Ensure `MAX_REQUEST_BODY_MB > 3 x MAX_JSON_FIELD_MB`
+   - Ensure `MAX_REQUEST_BODY_MB > 4 x MAX_JSON_FIELD_MB`
 
 2. **Single JSON field exceeds `MAX_JSON_FIELD_MB`**
    - Increase `MAX_JSON_FIELD_MB`
