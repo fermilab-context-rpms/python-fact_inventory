@@ -1,7 +1,7 @@
 # This playbook:
 #   collects system, package, and local facts
+#   submits the payload to the fact_inventory API
 #   writes an audit copy (best-effort, non-fatal)
-#   submits the same payload to the fact_inventory API
 #
 # Usage:
 #   ansible-playbook -K -i localhost, -c local gather.yml
