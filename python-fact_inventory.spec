@@ -1,5 +1,5 @@
 Name:		python-fact_inventory
-Version:	0.0.4
+Version:	0.0.5
 Release:	1%{?dist}
 
 License:	AGPL-3.0-or-later
@@ -48,6 +48,9 @@ ansible-playbook --syntax-check gather.yml
 %{_libexecdir}/fact-inventory-gather/gather.yml
 
 %changelog
+* Fri Jul 31 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.5
+- Make audit log 0600 by default
+
 * Fri Jul 31 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.4
 - Simplify structure of audit log file
 
