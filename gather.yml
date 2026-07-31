@@ -44,7 +44,6 @@
             post_payload:
               system_facts: >-
                 {{
-
                   ansible_facts
                   | dict2items
                   | rejectattr('key', 'in', ['ansible_local', 'packages'])
