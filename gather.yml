@@ -34,6 +34,7 @@
   gather_facts: no # gather with custom logic below
   vars:
     ansible_python_interpreter: /usr/bin/python3
+    ansible_package_manager: auto
     custom_fact_path: /etc/ansible/facts.d
 
     api_server: http://127.0.0.1:8000
@@ -42,7 +43,14 @@
     api_url: "{{ api_server }}{{ base_url }}{{ api_target }}"
 
     audit_file_create: false
+    audit_file_owner: root
+    audit_file_group: root
+    audit_file_mode: "0644"
     audit_file_create_directory: true
+    audit_file_directory_owner: root
+    audit_file_directory_group: root
+    audit_file_directory_mode: "0755"
+
     audit_file: /var/log/fact-inventory-payload.json
 
   tasks:
@@ -59,7 +67,7 @@
 
         - name: Gather the package facts
           ansible.builtin.package_facts:
-            manager: auto
+            manager: "{{ ansible_package_manager }}"
 
     - name: Payload Preparation
       block:
@@ -99,18 +107,18 @@
           ansible.builtin.file:
             path: "{{ audit_file | dirname }}"
             state: directory
-            owner: root
-            group: root
-            mode: "0755"
+            owner: "{{ audit_file_directory_owner }}"
+            group: "{{ audit_file_directory_group }}"
+            mode: "{{ audit_file_directory_mode }}"
           become: true
           failed_when: false
 
         - name: Write audit file with payload and response
           ansible.builtin.copy:
             dest: "{{ audit_file }}"
-            owner: root
-            group: root
-            mode: "0600"
+            owner: "{{ audit_file_owner }}"
+            group: "{{ audit_file_group }}"
+            mode: "{{ audit_file_mode }}"
             content: >-
               {{
                 {
