@@ -19,6 +19,7 @@
     api_target: /api/v1/facts
     api_url: "{{ api_server }}{{ base_url }}{{ api_target }}"
     audit_file_create: false
+    audit_file_create_directory: true
     audit_file: /var/log/fact-inventory-payload.json
 
   tasks:
@@ -32,7 +33,6 @@
               - "!facter"
               - "!ohai"
             fact_path: "{{ custom_fact_path }}"
-
         - name: Gather the package facts
           ansible.builtin.package_facts:
             manager: auto
@@ -55,7 +55,7 @@
                 ansible_version: "{{ ansible_version }}"
                 url: "{{ api_url }}"
 
-    - name: "API Submission to {{ api_server }}"
+    - name: API Submission
       block:
         - name: POST post_payload to fact_inventory API
           ansible.builtin.uri:
@@ -68,8 +68,10 @@
           ignore_errors: true
 
     - name: Audit Logging
+      when: audit_file_create | bool
       block:
         - name: Ensure audit directory exists
+          when: audit_file_create_directory | boot
           ansible.builtin.file:
             path: "{{ audit_file | dirname }}"
             state: directory
@@ -79,24 +81,21 @@
           become: true
           failed_when: false
 
-        - name: Prepare audit payload
-          ansible.builtin.set_fact:
-            audit_payload:
-              data:
-                post_payload: "{{ post_payload }}"
-              response:
-                api_result: "{{ api_result }}"
-
         - name: Write audit file with payload and response
           ansible.builtin.copy:
             dest: "{{ audit_file }}"
             owner: root
             group: root
             mode: "0600"
-            content: "{{ audit_payload | to_nice_json }}"
+            content: >-
+              {{
+                {
+                  'data': { 'post_payload': post_payload },
+                  'response': { 'api_result': api_result }
+                } | to_nice_json
+              }}
           become: true
           failed_when: false
-      when: audit_file_create | bool
 
     - name: Validation
       block:
