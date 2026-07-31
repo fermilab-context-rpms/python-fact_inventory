@@ -63,6 +63,7 @@ ansible-playbook --syntax-check gather.yml
 * Fri Jul 31 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.6
 - Move playbook to /usr/share following rpm review
 - Add simple doc
+- Make fact gathering a bit more flexible
 
 * Fri Jul 31 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.5
 - Make audit log 0600 by default

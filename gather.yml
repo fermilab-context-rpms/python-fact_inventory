@@ -22,6 +22,15 @@
 #   # Load custom variables from file
 #   ansible-playbook -K -e '@override_vars.yml' gather.yml
 #
+#   # Override gather_facts_subset to collect only specific facts
+#   ansible-playbook -K -i 'localhost,' -c local \
+#     -e 'gather_facts_subset=["network", "hardware"]' gather.yml
+#
+#   # Disable audit file and use custom API endpoint
+#   ansible-playbook -K -i 'localhost,' -c local \
+#     -e 'api_server=https://inventory.example.com' \
+#     -e 'audit_file_create=false' gather.yml
+#
 # Exit behavior:
 #   - Exits with non-zero if API submission fails (status code != 201)
 #   - Audit logging failures do not affect exit code (non-fatal by design)
@@ -38,6 +47,9 @@
     ansible_python_interpreter: /usr/bin/python3
     ansible_package_manager: auto
     custom_fact_path: /etc/ansible/facts.d
+
+    gather_facts_become: true
+    gather_facts_subset: ["all", "!facter", "!ohai"]
 
     api_server: http://127.0.0.1:8000
     base_url: /fact_inventory
@@ -59,12 +71,9 @@
     - name: Fact Collection
       block:
         - name: Gather ansible system facts
-          become: true
+          become: "{{ gather_facts_become | bool }}"
           ansible.builtin.setup:
-            gather_subset:
-              - "all"
-              - "!facter"
-              - "!ohai"
+            gather_subset: "{{ gather_facts_subset }}"
             fact_path: "{{ custom_fact_path }}"
 
         - name: Gather the package facts
