@@ -1,5 +1,5 @@
 Name:		python-fact_inventory
-Version:	0.0.3
+Version:	0.0.4
 Release:	1%{?dist}
 
 License:	AGPL-3.0-or-later
