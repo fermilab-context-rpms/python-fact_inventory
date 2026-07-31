@@ -45,7 +45,7 @@
     audit_file_create: false
     audit_file_owner: root
     audit_file_group: root
-    audit_file_mode: "0644"
+    audit_file_mode: "0600"
     audit_file_create_directory: true
     audit_file_directory_owner: root
     audit_file_directory_group: root
