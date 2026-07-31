@@ -42,7 +42,7 @@
       block:
         - name: Build POST payload
           ansible.builtin.set_fact:
-            post_payload:
+            fact_api_post_payload:
               system_facts: >-
                 {{
                   ansible_facts
@@ -58,14 +58,14 @@
 
     - name: API Submission
       block:
-        - name: POST post_payload to fact_inventory API
+        - name: POST fact_api_post_payload to fact_inventory API
           ansible.builtin.uri:
             url: "{{ api_url }}"
             method: POST
             body_format: json
-            body: "{{ post_payload | to_nice_json(indent=0) }}"
+            body: "{{ fact_api_post_payload | to_nice_json(indent=0) }}"
             status_code: 201
-          register: api_result
+          register: fact_api_post_result
           ignore_errors: true
 
     - name: Audit Logging
@@ -91,8 +91,8 @@
             content: >-
               {{
                 {
-                  'data': { 'post_payload': post_payload },
-                  'response': { 'api_result': api_result }
+                  "fact_api_post_payload": fact_api_post_payload,
+                  "fact_api_post_result": fact_api_post_result
                 } | to_nice_json
               }}
           become: true
@@ -102,5 +102,5 @@
       block:
         - name: Fail if and only if the API call failed
           ansible.builtin.fail:
-            msg: "API call failed: {{ api_result.msg }}"
-          when: api_result.failed
+            msg: "API call failed: {{ fact_api_post_result.msg }}"
+          when: fact_api_post_result.failed
