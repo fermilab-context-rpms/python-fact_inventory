@@ -72,7 +72,7 @@
       when: audit_file_create | bool
       block:
         - name: Ensure audit directory exists
-          when: audit_file_create_directory | boot
+          when: audit_file_create_directory | bool
           ansible.builtin.file:
             path: "{{ audit_file | dirname }}"
             state: directory

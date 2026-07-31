@@ -48,6 +48,9 @@ ansible-playbook --syntax-check gather.yml
 %{_libexecdir}/fact-inventory-gather/gather.yml
 
 %changelog
+* Fri Jul 31 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.4
+- Simplify structure of audit log file
+
 * Fri Jul 31 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.3
 - Allow skipping of audit log directory
 
