@@ -14,7 +14,7 @@ BuildRequires:	ansible-core
 Summary:	System fact inventory collection and storage
 
 %description
-Fact inventory system for collecting, storing, and managing system facts
+Fact inventory system for collecting, storing, and managing host facts
 across infrastructure.
 
 
@@ -23,8 +23,9 @@ Summary:	Fact inventory compatible Ansible agent
 Requires:	ansible-core
 
 %description -n fact-inventory-gather
-Provides a fact-inventory compatible Ansible agent for collecting system
-and package facts from target hosts and submitting them to the fact-inventory API.
+Provides a fact-inventory compatible Ansible agent for
+collecting system, package, and local facts from target hosts
+and submitting them to the fact-inventory API.
 
 
 %prep
