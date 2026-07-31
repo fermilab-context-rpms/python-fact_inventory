@@ -33,6 +33,7 @@
               - "!facter"
               - "!ohai"
             fact_path: "{{ custom_fact_path }}"
+
         - name: Gather the package facts
           ansible.builtin.package_facts:
             manager: auto
