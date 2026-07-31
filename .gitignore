@@ -31,3 +31,6 @@ coverage.xml
 BUILD/*
 RPMS/*
 SRPMS/*
+
+# build artifacts (not committed)
+docs/gather.yml.txt

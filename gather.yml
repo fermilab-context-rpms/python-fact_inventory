@@ -1,3 +1,4 @@
+# ===BEGIN_PLAYBOOK_DOC===
 # Gather system facts and submit to fact_inventory API
 #
 # Purpose:
@@ -28,6 +29,7 @@
 # To review the submitted results:
 #   - Check the local audit log at /var/log/fact-inventory-payload.json (if enabled)
 #   - Contact your fact-inventory service administrator for centralized query access
+# ===END_PLAYBOOK_DOC===
 #
 - name: Gather facts on system
   hosts: all
