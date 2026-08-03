@@ -47,7 +47,9 @@ cd agent/ansible/fact_inventory
 
 
 %check
+cd agent/ansible/fact_inventory
 %ansible_test_unit
+%ansible_test_integration --allow-destructive --allow-root
 
 
 %files -n ansible-collection-fermilab-fact_inventory -f %{ansible_collection_filelist}
