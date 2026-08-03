@@ -12,7 +12,7 @@ BuildRequires:	redhat-rpm-config
 BuildRequires:  sed
 
 BuildRequires:	ansible-packaging
-%if 0%{?rhel} < 9
+%if 0%{?rhel} > 8
 BuildRequires:  ansible-packaging-tests
 %endif
 
@@ -50,7 +50,7 @@ cd agent/ansible_collections/fermilab/fact_inventory
 %check
 
 cd agent/ansible_collections/fermilab/fact_inventory
-%if 0%{?rhel} < 9
+%if 0%{?rhel} > 8
 %ansible_test_unit
 %endif
 
