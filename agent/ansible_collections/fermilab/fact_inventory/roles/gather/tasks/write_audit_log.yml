@@ -1,27 +1,27 @@
 ---
 - name: Ensure audit directory exists
-  when: fact_inventory_audit_create_parent_dir | bool
+  when: fact_inventory_gather_audit_create_parent_dir | bool
   ansible.builtin.file:
-    path: "{{ fact_inventory_audit_path | dirname }}"
+    path: "{{ fact_inventory_gather_audit_path | dirname }}"
     state: directory
-    owner: "{{ fact_inventory_audit_dir_owner }}"
-    group: "{{ fact_inventory_audit_dir_group }}"
-    mode: "{{ fact_inventory_audit_dir_mode }}"
-  become: "{{ fact_inventory_audit_become | bool }}"
+    owner: "{{ fact_inventory_gather_audit_dir_owner }}"
+    group: "{{ fact_inventory_gather_audit_dir_group }}"
+    mode: "{{ fact_inventory_gather_audit_dir_mode }}"
+  become: "{{ fact_inventory_gather_audit_become | bool }}"
   failed_when: false
 
 - name: Write audit file with payload and response
   ansible.builtin.copy:
-    dest: "{{ fact_inventory_audit_path }}"
-    owner: "{{ fact_inventory_audit_owner }}"
-    group: "{{ fact_inventory_audit_group }}"
-    mode: "{{ fact_inventory_audit_mode }}"
+    dest: "{{ fact_inventory_gather_audit_path }}"
+    owner: "{{ fact_inventory_gather_audit_owner }}"
+    group: "{{ fact_inventory_gather_audit_group }}"
+    mode: "{{ fact_inventory_gather_audit_mode }}"
     content: >-
       {{
         {
-          "fact_api_post_payload": fact_inventory_api_payload,
-          "fact_api_post_result": fact_inventory_api_result
+          "fact_api_post_payload": fact_inventory_gather_api_payload,
+          "fact_api_post_result": fact_inventory_gather_api_result
         } | to_nice_json
       }}
-  become: "{{ fact_inventory_audit_become | bool }}"
+  become: "{{ fact_inventory_gather_audit_become | bool }}"
   failed_when: false

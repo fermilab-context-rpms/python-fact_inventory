@@ -1,6 +1,6 @@
 Name:		python-fact_inventory
-Version:	0.0.6
-Release:	2%{?dist}
+Version:	0.0.7
+Release:	1%{?dist}
 BuildArch:	noarch
 
 License:	AGPL-3.0-or-later
@@ -61,6 +61,9 @@ cd agent/ansible_collections/fermilab/fact_inventory
 
 
 %changelog
+* Mon Aug 3 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.7
+- Better variable names
+
 * Mon Aug 3 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.6-2
 - Fix package name
 

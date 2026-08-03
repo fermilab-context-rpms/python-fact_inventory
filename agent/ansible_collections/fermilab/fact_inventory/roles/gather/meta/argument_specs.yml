@@ -11,13 +11,13 @@ argument_specs:
     author:
       - Fermilab
     options:
-      fact_inventory_package_manager:
+      fact_inventory_gather_package_manager:
         type: str
         required: false
         default: auto
         description: Package manager passed to package_facts.
 
-      fact_inventory_local_facts_dir:
+      fact_inventory_gather_local_facts_dir:
         type: path
         required: false
         default: /etc/ansible/facts.d
@@ -25,101 +25,101 @@ argument_specs:
           Directory of local custom facts (fact_path for setup), surfaced
           as ansible_local.
 
-      fact_inventory_facts_become:
+      fact_inventory_gather_facts_become:
         type: bool
         required: false
         default: true
         description: Privilege escalation for the setup task only.
 
-      fact_inventory_facts_subset:
+      fact_inventory_gather_facts_subset:
         type: list
         elements: str
         required: false
         default: ["all", "!facter", "!ohai"]
         description: gather_subset value passed to setup.
 
-      fact_inventory_api_server:
+      fact_inventory_gather_api_server:
         type: str
         required: false
         default: http://127.0.0.1:8000
         description: fact_inventory API host, including scheme.
 
-      fact_inventory_api_base_path:
+      fact_inventory_gather_api_base_path:
         type: str
         required: false
         default: /fact_inventory
         description: Base path under the API server.
 
-      fact_inventory_api_endpoint:
+      fact_inventory_gather_api_endpoint:
         type: str
         required: false
         default: /api/v1/facts
         description: Resource path submitted to.
 
-      fact_inventory_api_url:
+      fact_inventory_gather_api_url:
         type: str
         required: false
         description: >-
           Full submission URL. Normally left unset and computed from
-          fact_inventory_api_server + fact_inventory_api_base_path +
-          fact_inventory_api_endpoint; only set directly if you need to
+          fact_inventory_gather_api_server + fact_inventory_gather_api_base_path +
+          fact_inventory_gather_api_endpoint; only set directly if you need to
           bypass that composition.
 
-      fact_inventory_audit_enabled:
+      fact_inventory_gather_audit_enabled:
         type: bool
         required: false
         default: false
         description: Write a local audit copy of the payload and API result.
 
-      fact_inventory_audit_become:
+      fact_inventory_gather_audit_become:
         type: bool
         required: false
         default: true
         description: Privilege escalation for audit file/directory tasks.
 
-      fact_inventory_audit_path:
+      fact_inventory_gather_audit_path:
         type: path
         required: false
         default: /var/log/fact-inventory/payload.json
         description: Audit file destination.
 
-      fact_inventory_audit_owner:
+      fact_inventory_gather_audit_owner:
         type: str
         required: false
         default: root
         description: Audit file owner.
 
-      fact_inventory_audit_group:
+      fact_inventory_gather_audit_group:
         type: str
         required: false
         default: root
         description: Audit file group.
 
-      fact_inventory_audit_mode:
+      fact_inventory_gather_audit_mode:
         type: str
         required: false
         default: "0600"
         description: Audit file permissions (quoted octal string).
 
-      fact_inventory_audit_create_parent_dir:
+      fact_inventory_gather_audit_create_parent_dir:
         type: bool
         required: false
         default: true
         description: Create the audit file's parent directory if missing.
 
-      fact_inventory_audit_dir_owner:
+      fact_inventory_gather_audit_dir_owner:
         type: str
         required: false
         default: root
         description: Audit directory owner.
 
-      fact_inventory_audit_dir_group:
+      fact_inventory_gather_audit_dir_group:
         type: str
         required: false
         default: root
         description: Audit directory group.
 
-      fact_inventory_audit_dir_mode:
+      fact_inventory_gather_audit_dir_mode:
         type: str
         required: false
         default: "0755"

@@ -27,13 +27,13 @@ management of a single idempotent resource, so it is built from stock
 reader can jump straight to the concern they need without scanning one
 large task list:
 
-| File                      | Responsibility                                                         |
-| ------------------------- | ---------------------------------------------------------------------- |
-| `collect_facts.yml`       | `setup` + `package_facts`                                              |
-| `build_payload.yml`       | Assemble the API payload via `set_fact`                                |
-| `submit_facts.yml`        | POST to the fact_inventory API                                         |
-| `write_audit_log.yml`     | Optional local audit copy (only run if `fact_inventory_audit_enabled`) |
-| `validate_submission.yml` | Fail the play if and only if the API call failed                       |
+| File                      | Responsibility                                                                |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| `collect_facts.yml`       | `setup` + `package_facts`                                                     |
+| `build_payload.yml`       | Assemble the API payload via `set_fact`                                       |
+| `submit_facts.yml`        | POST to the fact_inventory API                                                |
+| `write_audit_log.yml`     | Optional local audit copy (only run if `fact_inventory_gather_audit_enabled`) |
+| `validate_submission.yml` | Fail the play if and only if the API call failed                              |
 
 `import_tasks` (static) is used rather than `include_tasks` (dynamic) since
 none of these files are conditionally selected by name - static import
@@ -46,7 +46,7 @@ slightly cheaper across a large host count.
 - Python 3 on the target
 - Network reachability from the target to the fact_inventory API
 - Root privileges (e.g. `-K`, or a configured become method) for full
-  fact detail; see `fact_inventory_facts_become` / `fact_inventory_audit_become`
+  fact detail; see `fact_inventory_gather_facts_become` / `fact_inventory_gather_audit_become`
   below if you want to run parts of this without privilege escalation
 
 ## Usage
@@ -64,8 +64,8 @@ Or with `include_role` / `import_role` and per-call overrides:
           ansible.builtin.include_role:
             name: fermilab.fact_inventory.gather
           vars:
-            fact_inventory_api_server: "https://inventory.example.com"
-            fact_inventory_audit_enabled: true
+            fact_inventory_gather_api_server: "https://inventory.example.com"
+            fact_inventory_gather_audit_enabled: true
 
 Equivalent CLI patterns:
 
@@ -73,52 +73,38 @@ Equivalent CLI patterns:
     ansible-playbook -K -i 'localhost,' -c local site.yml
 
     # Target a specific API server
-    ansible-playbook -K -e 'fact_inventory_api_server=https://fqdn' site.yml
+    ansible-playbook -K -e 'fact_inventory_gather_api_server=https://fqdn' site.yml
 
     # Load overrides from a file
     ansible-playbook -K -e '@override_vars.yml' site.yml
 
     # Collect only specific fact subsets
     ansible-playbook -K -i 'localhost,' -c local \
-      -e 'fact_inventory_facts_subset=["network","hardware"]' site.yml
+      -e 'fact_inventory_gather_facts_subset=["network","hardware"]' site.yml
 
     # Enable the audit file and use a custom API endpoint
     ansible-playbook -K -i 'localhost,' -c local \
-      -e 'fact_inventory_api_server=https://inventory.example.com' \
-      -e 'fact_inventory_audit_enabled=true' site.yml
+      -e 'fact_inventory_gather_api_server=https://inventory.example.com' \
+      -e 'fact_inventory_gather_audit_enabled=true' site.yml
 
 ## Variables
 
 All variables are role defaults (lowest precedence, safely overridable
-from group*vars/host_vars/-e) and use the `fact_inventory*` prefix - the
-collection's domain, not just this one role - so a future sibling role in
-this collection can share the same names without collision.
+from group\*vars/host*vars/-e) and use the `fact_inventory_gather*`
+prefix - the collection domain plus the role name - so these names are
+unambiguous in plays that use several roles and stay collision-free if a
+future sibling role is added to this collection.
 
 Deliberately flat rather than nested dicts: Ansible's default
 `hash_behaviour` is `replace`, so a host_vars override of one key in a
 nested dict silently drops its sibling keys. Flat names avoid that.
 
-| Variable                                    | Default                                | Purpose                                  |
-| ------------------------------------------- | -------------------------------------- | ---------------------------------------- |
-| `fact_inventory_package_manager`            | `auto`                                 | `package_facts` manager                  |
-| `fact_inventory_local_facts_dir`            | `/etc/ansible/facts.d`                 | Local facts (`ansible_local`) source dir |
-| `fact_inventory_facts_become`               | `true`                                 | Privilege escalation for `setup`         |
-| `fact_inventory_facts_subset`               | `["all", "!facter", "!ohai"]`          | `setup` gather_subset                    |
-| `fact_inventory_api_server`                 | `http://127.0.0.1:8000`                | fact_inventory API host                  |
-| `fact_inventory_api_base_path`              | `/fact_inventory`                      | API base path                            |
-| `fact_inventory_api_endpoint`               | `/api/v1/facts`                        | API resource path                        |
-| `fact_inventory_api_url`                    | computed from the three vars above     | Full submission URL                      |
-| `fact_inventory_audit_enabled`              | `false`                                | Write a local audit copy                 |
-| `fact_inventory_audit_become`               | `true`                                 | Privilege escalation for audit file ops  |
-| `fact_inventory_audit_path`                 | `/var/log/fact-inventory/payload.json` | Audit file path                          |
-| `fact_inventory_audit_owner/group/mode`     | `root` / `root` / `"0600"`             | Audit file ownership/perms               |
-| `fact_inventory_audit_create_parent_dir`    | `true`                                 | Create audit file's parent dir           |
-| `fact_inventory_audit_dir_owner/group/mode` | `root` / `root` / `"0755"`             | Audit dir ownership/perms                |
+See the `defaults/main.yml` for a list of what is provided.
 
 ## Facts set by this role (not inputs)
 
-- `fact_inventory_api_payload` - the payload sent to the API
-- `fact_inventory_api_result` - the registered `uri` result
+- `fact_inventory_gather_api_payload` - the payload sent to the API
+- `fact_inventory_gather_api_result` - the registered `uri` result
 
 These are visible to later tasks in the same play (e.g. for custom
 notifications) but are not meant to be set by the caller.
@@ -131,6 +117,6 @@ notifications) but are not meant to be set by the caller.
 
 ## Reviewing submitted results
 
-- Local audit copy (if `fact_inventory_audit_enabled: true`): the path in
-  `fact_inventory_audit_path`.
+- Local audit copy (if `fact_inventory_gather_audit_enabled: true`): the path in
+  `fact_inventory_gather_audit_path`.
 - Otherwise: query the fact_inventory API directly.

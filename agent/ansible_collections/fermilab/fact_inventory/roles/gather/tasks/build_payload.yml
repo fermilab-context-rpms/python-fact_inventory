@@ -1,10 +1,10 @@
 ---
 - name: Build POST payload
   ansible.builtin.set_fact:
-    fact_inventory_api_payload:
+    fact_inventory_gather_api_payload:
       agent_facts:
         ansible_version: "{{ ansible_version }}"
-        url: "{{ fact_inventory_api_url }}"
+        url: "{{ fact_inventory_gather_api_url }}"
       system_facts: >-
         {{
           ansible_facts

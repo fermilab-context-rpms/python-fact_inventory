@@ -53,26 +53,27 @@ def test_fact_collection_parameters() -> None:
 
     options = specs["argument_specs"]["main"]["options"]
 
-    # fact_inventory_package_manager
-    assert options["fact_inventory_package_manager"]["default"] == "auto"
-    assert options["fact_inventory_package_manager"]["type"] == "str"
-    assert defaults["fact_inventory_package_manager"] == "auto"
+    # fact_inventory_gather_package_manager
+    assert options["fact_inventory_gather_package_manager"]["default"] == "auto"
+    assert options["fact_inventory_gather_package_manager"]["type"] == "str"
+    assert defaults["fact_inventory_gather_package_manager"] == "auto"
 
-    # fact_inventory_local_facts_dir
+    # fact_inventory_gather_local_facts_dir
     assert (
-        options["fact_inventory_local_facts_dir"]["default"] == "/etc/ansible/facts.d"
+        options["fact_inventory_gather_local_facts_dir"]["default"]
+        == "/etc/ansible/facts.d"
     )
-    assert options["fact_inventory_local_facts_dir"]["type"] == "path"
-    assert defaults["fact_inventory_local_facts_dir"] == "/etc/ansible/facts.d"
+    assert options["fact_inventory_gather_local_facts_dir"]["type"] == "path"
+    assert defaults["fact_inventory_gather_local_facts_dir"] == "/etc/ansible/facts.d"
 
-    # fact_inventory_facts_become
-    assert options["fact_inventory_facts_become"]["default"] is True
-    assert options["fact_inventory_facts_become"]["type"] == "bool"
-    assert defaults["fact_inventory_facts_become"] is True
+    # fact_inventory_gather_facts_become
+    assert options["fact_inventory_gather_facts_become"]["default"] is True
+    assert options["fact_inventory_gather_facts_become"]["type"] == "bool"
+    assert defaults["fact_inventory_gather_facts_become"] is True
 
-    # fact_inventory_facts_subset
-    assert options["fact_inventory_facts_subset"]["type"] == "list"
-    assert defaults["fact_inventory_facts_subset"] == ["all", "!facter", "!ohai"]
+    # fact_inventory_gather_facts_subset
+    assert options["fact_inventory_gather_facts_subset"]["type"] == "list"
+    assert defaults["fact_inventory_gather_facts_subset"] == ["all", "!facter", "!ohai"]
 
 
 def test_api_parameters() -> None:
@@ -85,20 +86,25 @@ def test_api_parameters() -> None:
 
     options = specs["argument_specs"]["main"]["options"]
 
-    # fact_inventory_api_server
-    assert options["fact_inventory_api_server"]["default"] == "http://127.0.0.1:8000"
-    assert options["fact_inventory_api_server"]["type"] == "str"
-    assert defaults["fact_inventory_api_server"] == "http://127.0.0.1:8000"
+    # fact_inventory_gather_api_server
+    assert (
+        options["fact_inventory_gather_api_server"]["default"]
+        == "http://127.0.0.1:8000"
+    )
+    assert options["fact_inventory_gather_api_server"]["type"] == "str"
+    assert defaults["fact_inventory_gather_api_server"] == "http://127.0.0.1:8000"
 
-    # fact_inventory_api_base_path
-    assert options["fact_inventory_api_base_path"]["default"] == "/fact_inventory"
-    assert options["fact_inventory_api_base_path"]["type"] == "str"
-    assert defaults["fact_inventory_api_base_path"] == "/fact_inventory"
+    # fact_inventory_gather_api_base_path
+    assert (
+        options["fact_inventory_gather_api_base_path"]["default"] == "/fact_inventory"
+    )
+    assert options["fact_inventory_gather_api_base_path"]["type"] == "str"
+    assert defaults["fact_inventory_gather_api_base_path"] == "/fact_inventory"
 
-    # fact_inventory_api_endpoint
-    assert options["fact_inventory_api_endpoint"]["default"] == "/api/v1/facts"
-    assert options["fact_inventory_api_endpoint"]["type"] == "str"
-    assert defaults["fact_inventory_api_endpoint"] == "/api/v1/facts"
+    # fact_inventory_gather_api_endpoint
+    assert options["fact_inventory_gather_api_endpoint"]["default"] == "/api/v1/facts"
+    assert options["fact_inventory_gather_api_endpoint"]["type"] == "str"
+    assert defaults["fact_inventory_gather_api_endpoint"] == "/api/v1/facts"
 
 
 def test_audit_parameters() -> None:
@@ -111,57 +117,58 @@ def test_audit_parameters() -> None:
 
     options = specs["argument_specs"]["main"]["options"]
 
-    # fact_inventory_audit_enabled
-    assert options["fact_inventory_audit_enabled"]["default"] is False
-    assert options["fact_inventory_audit_enabled"]["type"] == "bool"
-    assert defaults["fact_inventory_audit_enabled"] is False
+    # fact_inventory_gather_audit_enabled
+    assert options["fact_inventory_gather_audit_enabled"]["default"] is False
+    assert options["fact_inventory_gather_audit_enabled"]["type"] == "bool"
+    assert defaults["fact_inventory_gather_audit_enabled"] is False
 
-    # fact_inventory_audit_become
-    assert options["fact_inventory_audit_become"]["default"] is True
-    assert options["fact_inventory_audit_become"]["type"] == "bool"
-    assert defaults["fact_inventory_audit_become"] is True
+    # fact_inventory_gather_audit_become
+    assert options["fact_inventory_gather_audit_become"]["default"] is True
+    assert options["fact_inventory_gather_audit_become"]["type"] == "bool"
+    assert defaults["fact_inventory_gather_audit_become"] is True
 
-    # fact_inventory_audit_path
+    # fact_inventory_gather_audit_path
     assert (
-        options["fact_inventory_audit_path"]["default"]
+        options["fact_inventory_gather_audit_path"]["default"]
         == "/var/log/fact-inventory/payload.json"
     )
-    assert options["fact_inventory_audit_path"]["type"] == "path"
+    assert options["fact_inventory_gather_audit_path"]["type"] == "path"
     assert (
-        defaults["fact_inventory_audit_path"] == "/var/log/fact-inventory/payload.json"
+        defaults["fact_inventory_gather_audit_path"]
+        == "/var/log/fact-inventory/payload.json"
     )
 
-    # fact_inventory_audit_owner
-    assert options["fact_inventory_audit_owner"]["default"] == "root"
-    assert options["fact_inventory_audit_owner"]["type"] == "str"
-    assert defaults["fact_inventory_audit_owner"] == "root"
+    # fact_inventory_gather_audit_owner
+    assert options["fact_inventory_gather_audit_owner"]["default"] == "root"
+    assert options["fact_inventory_gather_audit_owner"]["type"] == "str"
+    assert defaults["fact_inventory_gather_audit_owner"] == "root"
 
-    # fact_inventory_audit_group
-    assert options["fact_inventory_audit_group"]["default"] == "root"
-    assert options["fact_inventory_audit_group"]["type"] == "str"
-    assert defaults["fact_inventory_audit_group"] == "root"
+    # fact_inventory_gather_audit_group
+    assert options["fact_inventory_gather_audit_group"]["default"] == "root"
+    assert options["fact_inventory_gather_audit_group"]["type"] == "str"
+    assert defaults["fact_inventory_gather_audit_group"] == "root"
 
-    # fact_inventory_audit_mode
-    assert options["fact_inventory_audit_mode"]["default"] == "0600"
-    assert options["fact_inventory_audit_mode"]["type"] == "str"
-    assert defaults["fact_inventory_audit_mode"] == "0600"
+    # fact_inventory_gather_audit_mode
+    assert options["fact_inventory_gather_audit_mode"]["default"] == "0600"
+    assert options["fact_inventory_gather_audit_mode"]["type"] == "str"
+    assert defaults["fact_inventory_gather_audit_mode"] == "0600"
 
-    # fact_inventory_audit_create_parent_dir
-    assert options["fact_inventory_audit_create_parent_dir"]["default"] is True
-    assert options["fact_inventory_audit_create_parent_dir"]["type"] == "bool"
-    assert defaults["fact_inventory_audit_create_parent_dir"] is True
+    # fact_inventory_gather_audit_create_parent_dir
+    assert options["fact_inventory_gather_audit_create_parent_dir"]["default"] is True
+    assert options["fact_inventory_gather_audit_create_parent_dir"]["type"] == "bool"
+    assert defaults["fact_inventory_gather_audit_create_parent_dir"] is True
 
-    # fact_inventory_audit_dir_owner
-    assert options["fact_inventory_audit_dir_owner"]["default"] == "root"
-    assert options["fact_inventory_audit_dir_owner"]["type"] == "str"
-    assert defaults["fact_inventory_audit_dir_owner"] == "root"
+    # fact_inventory_gather_audit_dir_owner
+    assert options["fact_inventory_gather_audit_dir_owner"]["default"] == "root"
+    assert options["fact_inventory_gather_audit_dir_owner"]["type"] == "str"
+    assert defaults["fact_inventory_gather_audit_dir_owner"] == "root"
 
-    # fact_inventory_audit_dir_group
-    assert options["fact_inventory_audit_dir_group"]["default"] == "root"
-    assert options["fact_inventory_audit_dir_group"]["type"] == "str"
-    assert defaults["fact_inventory_audit_dir_group"] == "root"
+    # fact_inventory_gather_audit_dir_group
+    assert options["fact_inventory_gather_audit_dir_group"]["default"] == "root"
+    assert options["fact_inventory_gather_audit_dir_group"]["type"] == "str"
+    assert defaults["fact_inventory_gather_audit_dir_group"] == "root"
 
-    # fact_inventory_audit_dir_mode
-    assert options["fact_inventory_audit_dir_mode"]["default"] == "0755"
-    assert options["fact_inventory_audit_dir_mode"]["type"] == "str"
-    assert defaults["fact_inventory_audit_dir_mode"] == "0755"
+    # fact_inventory_gather_audit_dir_mode
+    assert options["fact_inventory_gather_audit_dir_mode"]["default"] == "0755"
+    assert options["fact_inventory_gather_audit_dir_mode"]["type"] == "str"
+    assert defaults["fact_inventory_gather_audit_dir_mode"] == "0755"

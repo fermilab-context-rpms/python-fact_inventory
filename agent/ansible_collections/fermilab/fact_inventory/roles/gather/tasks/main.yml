@@ -14,7 +14,7 @@
 
 - name: Write a local audit copy of the payload and API response
   ansible.builtin.import_tasks: write_audit_log.yml
-  when: fact_inventory_audit_enabled | bool
+  when: fact_inventory_gather_audit_enabled | bool
 
 - name: Validate the API submission result
   ansible.builtin.import_tasks: validate_submission.yml

@@ -1,5 +1,5 @@
 ---
 - name: Fail if and only if the API call failed
   ansible.builtin.fail:
-    msg: "API call failed: {{ fact_inventory_api_result.msg }}"
-  when: fact_inventory_api_result.failed
+    msg: "API call failed: {{ fact_inventory_gather_api_result.msg }}"
+  when: fact_inventory_gather_api_result.failed

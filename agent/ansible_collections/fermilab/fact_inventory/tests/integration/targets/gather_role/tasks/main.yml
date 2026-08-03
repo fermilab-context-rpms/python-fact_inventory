@@ -29,16 +29,16 @@
 
 - name: Verify audit file was written
   ansible.builtin.stat:
-    path: "{{ fact_inventory_audit_path }}"
+    path: "{{ fact_inventory_gather_audit_path }}"
   register: gather_test_audit_stat
 
 - name: Assert successful submission and audit content
   ansible.builtin.assert:
     that:
       - gather_test_audit_stat.stat.exists
-      - fact_inventory_api_result.status == 201
-      - fact_inventory_api_payload.package_facts is defined
-      - fact_inventory_api_payload.system_facts is defined
+      - fact_inventory_gather_api_result.status == 201
+      - fact_inventory_gather_api_payload.package_facts is defined
+      - fact_inventory_gather_api_payload.system_facts is defined
 
 - name: Stop mock fact_inventory API
   ansible.builtin.shell: "kill {{ gather_test_mock_api.stdout | trim }}"

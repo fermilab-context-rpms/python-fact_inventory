@@ -1,39 +1,39 @@
 ---
-# Every variable uses the fact_inventory_ prefix (collection-domain
-# namespacing, not just this role) so it stays collision-free if a
-# sibling role is ever added to this collection that shares the same API
-# or audit settings. All are plain role defaults (lowest Ansible variable
-# precedence) - override via group_vars, host_vars, -e, or vars: passed
-# to include_role/import_role.
+# Every variable uses the fact_inventory_gather_ prefix (collection +
+# role namespacing) so these names are unambiguous when a play uses
+# multiple roles, and stay collision-free if a sibling role is ever
+# added to this collection. All are plain role defaults (lowest Ansible
+# variable precedence) - override via group_vars, host_vars, -e, or
+# vars: passed to include_role/import_role.
 #
 # Deliberately flat, not nested dicts: Ansible's default hash_behaviour
-# is "replace", not "merge". A nested var like fact_inventory_api: {...}
+# is "replace", not "merge". A nested var like fact_inventory_gather_api: {...}
 # would mean a host_vars override of just one key silently wipes out the
 # other keys in that dict. Flat names avoid that failure mode entirely.
 
 # --- Local fact collection ---
-fact_inventory_package_manager: auto
-fact_inventory_local_facts_dir: /etc/ansible/facts.d
-fact_inventory_facts_become: true
-fact_inventory_facts_subset:
+fact_inventory_gather_package_manager: auto
+fact_inventory_gather_local_facts_dir: /etc/ansible/facts.d
+fact_inventory_gather_facts_become: true
+fact_inventory_gather_facts_subset:
   - all
   - "!facter"
   - "!ohai"
 
 # --- fact_inventory API target ---
-fact_inventory_api_server: http://127.0.0.1:8000
-fact_inventory_api_base_path: /fact_inventory
-fact_inventory_api_endpoint: /api/v1/facts
-fact_inventory_api_url: "{{ fact_inventory_api_server }}{{ fact_inventory_api_base_path }}{{ fact_inventory_api_endpoint }}"
+fact_inventory_gather_api_server: http://127.0.0.1:8000
+fact_inventory_gather_api_base_path: /fact_inventory
+fact_inventory_gather_api_endpoint: /api/v1/facts
+fact_inventory_gather_api_url: "{{ fact_inventory_gather_api_server }}{{ fact_inventory_gather_api_base_path }}{{ fact_inventory_gather_api_endpoint }}"
 
 # --- Local audit copy of payload + API response (best-effort, non-fatal) ---
-fact_inventory_audit_enabled: false
-fact_inventory_audit_become: true
-fact_inventory_audit_path: /var/log/fact-inventory/payload.json
-fact_inventory_audit_owner: root
-fact_inventory_audit_group: root
-fact_inventory_audit_mode: "0600"
-fact_inventory_audit_create_parent_dir: true
-fact_inventory_audit_dir_owner: root
-fact_inventory_audit_dir_group: root
-fact_inventory_audit_dir_mode: "0755"
+fact_inventory_gather_audit_enabled: false
+fact_inventory_gather_audit_become: true
+fact_inventory_gather_audit_path: /var/log/fact-inventory/payload.json
+fact_inventory_gather_audit_owner: root
+fact_inventory_gather_audit_group: root
+fact_inventory_gather_audit_mode: "0600"
+fact_inventory_gather_audit_create_parent_dir: true
+fact_inventory_gather_audit_dir_owner: root
+fact_inventory_gather_audit_dir_group: root
+fact_inventory_gather_audit_dir_mode: "0755"
