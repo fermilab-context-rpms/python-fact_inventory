@@ -1,5 +1,5 @@
 Name:		python-fact_inventory
-Version:	0.0.6
+Version:	0.0.5
 Release:	1%{?dist}
 
 License:	AGPL-3.0-or-later
@@ -10,12 +10,7 @@ Source0:	%{url}/archive/%{version}/%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRequires:	redhat-rpm-config
 BuildRequires:	ansible-packaging
-BuildRequires:	ansible-core
-
-%if %{with tests}
 BuildRequires:  ansible-packaging-tests
-%endif
-
 
 Summary:	System fact inventory collection and storage
 
@@ -52,11 +47,7 @@ cd agent/ansible/fact_inventory
 
 
 %check
-echo 'localhost ansible_connection=local' >hosts.ini
-export \
-    ANSIBLE_COLLECTIONS_PATH=%{buildroot}%{ansible_collections_dir} \
-    ANSIBLE_INVENTORY=hosts.ini
-ansible-playbook $(find tests/playbooks/*.yaml -not -name 'jq.yaml')
+%ansible_test_unit
 
 
 %files -n ansible-collection-fermilab-fact_inventory -f %{ansible_collection_filelist}
