@@ -24,6 +24,7 @@ Or build and install as a normal collection artifact:
 ## Usage
 
     - hosts: all
+      gather_facts: false
       roles:
         - fermilab.fact_inventory.gather
 
