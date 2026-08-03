@@ -119,4 +119,3 @@ notifications) but are not meant to be set by the caller.
 
 - Local audit copy (if `fact_inventory_gather_audit_enabled: true`): the path in
   `fact_inventory_gather_audit_path`.
-- Otherwise: query the fact_inventory API directly.
