@@ -110,7 +110,7 @@ nested dict silently drops its sibling keys. Flat names avoid that.
 | `fact_inventory_api_url`                    | computed from the three vars above     | Full submission URL                      |
 | `fact_inventory_audit_enabled`              | `false`                                | Write a local audit copy                 |
 | `fact_inventory_audit_become`               | `true`                                 | Privilege escalation for audit file ops  |
-| `fact_inventory_audit_path`                 | `/var/log/fact-inventory-payload.json` | Audit file path                          |
+| `fact_inventory_audit_path`                 | `/var/log/fact-inventory/payload.json` | Audit file path                          |
 | `fact_inventory_audit_owner/group/mode`     | `root` / `root` / `"0600"`             | Audit file ownership/perms               |
 | `fact_inventory_audit_create_parent_dir`    | `true`                                 | Create audit file's parent dir           |
 | `fact_inventory_audit_dir_owner/group/mode` | `root` / `root` / `"0755"`             | Audit dir ownership/perms                |
