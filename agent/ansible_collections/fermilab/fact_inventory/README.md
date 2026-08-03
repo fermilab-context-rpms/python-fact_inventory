@@ -46,4 +46,4 @@ shares the role's exact name - keep test targets and role names distinct.)
 
 This collection is primarily licensed and distributed as a whole under the AGPL v3.0 or later.
 
-See LICENSE.txt for the full text.
+See LICENSE for the full text.
