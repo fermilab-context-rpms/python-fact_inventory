@@ -43,6 +43,6 @@ shares the role's exact name - keep test targets and role names distinct.)
 
 ## License
 
-This collection is primarily licensed and distributed as a whole under the GNU General Public License v3.0 or later.
+This collection is primarily licensed and distributed as a whole under the AGPL v3.0 or later.
 
 See LICENSE.txt for the full text.
