@@ -10,6 +10,20 @@ on:
     branches: [main]
 
 jobs:
+  get-python-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Extract minimum Python version from pyproject.toml
+        id: version
+        run: |
+          # Extract requires-python value and get minimum version
+          # e.g., ">=3.12" becomes "3.12"
+          VERSION=$(grep 'requires-python' pyproject.toml | sed 's/.*>=//' | sed 's/".*//' | xargs)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
   pre-commit:
     runs-on: ubuntu-latest
     steps:
@@ -23,11 +37,13 @@ jobs:
 
   pytest:
     runs-on: ubuntu-latest
-    needs: pre-commit
+    needs:
+      - pre-commit
+      - get-python-version
     strategy:
       matrix:
         python-version:
-          - "3.12"
+          - ${{ needs.get-python-version.outputs.version }}
     steps:
       - uses: actions/checkout@v7
       - name: Set up Python
@@ -40,13 +56,15 @@ jobs:
 
   ansible-collection-integration:
     runs-on: ubuntu-latest
-    needs: pre-commit
+    needs:
+      - pre-commit
+      - get-python-version
     steps:
       - uses: actions/checkout@v7
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: ${{ needs.get-python-version.outputs.version }}
       - name: Install Ansible
         run: pip install ansible
       - name: Run Ansible collection integration tests
