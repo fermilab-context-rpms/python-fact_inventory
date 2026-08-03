@@ -1,6 +1,6 @@
 namespace: fermilab
 name: fact_inventory
-version: 0.1.0
+version: VERSION
 readme: README.md
 authors:
   - "Pat Riehecky <riehecky@fnal.gov>"

@@ -11,6 +11,7 @@ BuildArch:	noarch
 BuildRequires:	redhat-rpm-config
 BuildRequires:	ansible-packaging
 BuildRequires:  ansible-packaging-tests
+BuildRequires:  sed
 
 Summary:	System fact inventory collection and storage
 
@@ -35,6 +36,7 @@ and submitting them to the fact-inventory API.
 %build
 
 cd agent/ansible_collections/fermilab/fact_inventory
+sed -i -e 's/VERSION/%{version}/' galaxy.yml
 %ansible_collection_build
 
 
