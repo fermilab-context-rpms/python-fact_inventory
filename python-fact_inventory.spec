@@ -1,5 +1,5 @@
 Name:		python-fact_inventory
-Version:	0.0.7
+Version:	0.0.8
 Release:	1%{?dist}
 BuildArch:	noarch
 
@@ -61,6 +61,9 @@ cd agent/ansible_collections/fermilab/fact_inventory
 
 
 %changelog
+* Mon Aug 3 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.8
+- Lower ansible API surface
+
 * Mon Aug 3 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.7
 - Better variable names
 
