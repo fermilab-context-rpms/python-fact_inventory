@@ -3,6 +3,8 @@ fact_inventory_api_server: "http://127.0.0.1:8123"
 fact_inventory_api_base_path: ""
 fact_inventory_api_endpoint: "/facts"
 
+# Disable privilege escalation for testing (defaults to true in production)
+fact_inventory_facts_become: false
 fact_inventory_audit_path: "{{ output_dir }}/fact-inventory-payload.json"
 fact_inventory_audit_enabled: true
 fact_inventory_audit_become: false
