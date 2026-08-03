@@ -39,6 +39,8 @@
       - fact_inventory_gather_api_result.status == 201
       - fact_inventory_gather_api_payload.package_facts is defined
       - fact_inventory_gather_api_payload.system_facts is defined
+      - fact_inventory_gather_api_url ==
+        "{{ fact_inventory_gather_api_server }}{{ fact_inventory_gather_api_base_path }}{{ fact_inventory_gather_api_endpoint }}"
 
 - name: Stop mock fact_inventory API
   ansible.builtin.shell: "kill {{ gather_test_mock_api.stdout | trim }}"

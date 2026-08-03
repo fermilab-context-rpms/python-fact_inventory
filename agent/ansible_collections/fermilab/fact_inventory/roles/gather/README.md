@@ -103,6 +103,7 @@ See the `defaults/main.yml` for a list of what is provided.
 
 ## Facts set by this role (not inputs)
 
+- `fact_inventory_gather_api_url` - the full submission URL
 - `fact_inventory_gather_api_payload` - the payload sent to the API
 - `fact_inventory_gather_api_result` - the registered `uri` result
 

@@ -106,6 +106,33 @@ def test_api_parameters() -> None:
     assert options["fact_inventory_gather_api_endpoint"]["type"] == "str"
     assert defaults["fact_inventory_gather_api_endpoint"] == "/api/v1/facts"
 
+    # fact_inventory_gather_api_url is a role output, not an input
+    assert "fact_inventory_gather_api_url" not in options
+    assert "fact_inventory_gather_api_url" not in defaults
+
+
+def test_api_url_is_composed_by_role() -> None:
+    """Verify collect_facts.yml registers the composed API URL."""
+    tasks_file = get_role_path() / "tasks" / "collect_facts.yml"
+    tasks = yaml.safe_load(tasks_file.read_text(encoding="utf-8"))
+    assert tasks is not None
+
+    set_facts = [t for t in tasks if "ansible.builtin.set_fact" in t]
+    assert set_facts, "collect_facts.yml must register the API URL via set_fact"
+
+    url_task = next(
+        t
+        for t in set_facts
+        if "fact_inventory_gather_api_url" in t["ansible.builtin.set_fact"]
+    )
+    composition = url_task["ansible.builtin.set_fact"]["fact_inventory_gather_api_url"]
+    for component in (
+        "fact_inventory_gather_api_server",
+        "fact_inventory_gather_api_base_path",
+        "fact_inventory_gather_api_endpoint",
+    ):
+        assert component in composition
+
 
 def test_audit_parameters() -> None:
     """Validate audit file/directory parameters match specs."""

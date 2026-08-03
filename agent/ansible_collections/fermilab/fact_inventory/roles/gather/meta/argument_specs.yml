@@ -56,15 +56,6 @@ argument_specs:
         default: /api/v1/facts
         description: Resource path submitted to.
 
-      fact_inventory_gather_api_url:
-        type: str
-        required: false
-        description: >-
-          Full submission URL. Normally left unset and computed from
-          fact_inventory_gather_api_server + fact_inventory_gather_api_base_path +
-          fact_inventory_gather_api_endpoint; only set directly if you need to
-          bypass that composition.
-
       fact_inventory_gather_audit_enabled:
         type: bool
         required: false

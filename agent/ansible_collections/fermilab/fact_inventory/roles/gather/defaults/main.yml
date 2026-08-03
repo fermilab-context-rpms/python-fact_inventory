@@ -24,7 +24,6 @@ fact_inventory_gather_facts_subset:
 fact_inventory_gather_api_server: http://127.0.0.1:8000
 fact_inventory_gather_api_base_path: /fact_inventory
 fact_inventory_gather_api_endpoint: /api/v1/facts
-fact_inventory_gather_api_url: "{{ fact_inventory_gather_api_server }}{{ fact_inventory_gather_api_base_path }}{{ fact_inventory_gather_api_endpoint }}"
 
 # --- Local audit copy of payload + API response (best-effort, non-fatal) ---
 fact_inventory_gather_audit_enabled: false

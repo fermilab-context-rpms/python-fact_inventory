@@ -1,4 +1,8 @@
 ---
+- name: Compose the fact_inventory API URL from its components
+  ansible.builtin.set_fact:
+    fact_inventory_gather_api_url: "{{ fact_inventory_gather_api_server }}{{ fact_inventory_gather_api_base_path }}{{ fact_inventory_gather_api_endpoint }}"
+
 - name: Gather ansible system facts
   become: "{{ fact_inventory_gather_facts_become | bool }}"
   ansible.builtin.setup:
