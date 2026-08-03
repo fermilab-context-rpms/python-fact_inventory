@@ -9,9 +9,12 @@ URL:		https://github.com/fermitools/python-fact_inventory
 Source0:	%{url}/archive/%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:	redhat-rpm-config
-BuildRequires:	ansible-packaging
-BuildRequires:  ansible-packaging-tests
 BuildRequires:  sed
+
+BuildRequires:	ansible-packaging
+%if 0%{?rhel} < 9
+BuildRequires:  ansible-packaging-tests
+%endif
 
 Summary:  System fact inventory collection and storage
 %description
@@ -47,7 +50,9 @@ cd agent/ansible_collections/fermilab/fact_inventory
 %check
 
 cd agent/ansible_collections/fermilab/fact_inventory
+%if 0%{?rhel} < 9
 %ansible_test_unit
+%endif
 
 
 %files -n ansible-collection-fermilab-fact_inventory -f %{ansible_collection_filelist}
