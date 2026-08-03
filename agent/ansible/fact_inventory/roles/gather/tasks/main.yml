@@ -1,0 +1,20 @@
+---
+# fermilab.fact_inventory.gather
+# Each phase of the workflow lives in its own file below. See README.md
+# for variables and design rationale.
+
+- name: Collect system, package, and local facts
+  ansible.builtin.import_tasks: collect_facts.yml
+
+- name: Build the fact_inventory API payload
+  ansible.builtin.import_tasks: build_payload.yml
+
+- name: Submit the payload to the fact_inventory API
+  ansible.builtin.import_tasks: submit_facts.yml
+
+- name: Write a local audit copy of the payload and API response
+  ansible.builtin.import_tasks: write_audit_log.yml
+  when: fact_inventory_audit_enabled | bool
+
+- name: Validate the API submission result
+  ansible.builtin.import_tasks: validate_submission.yml

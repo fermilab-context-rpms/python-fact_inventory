@@ -9,8 +9,13 @@ Source0:	%{url}/archive/%{version}/%{name}-%{version}.tar.gz
 
 BuildArch:	noarch
 BuildRequires:	redhat-rpm-config
+BuildRequires:	ansible-packaging
 BuildRequires:	ansible-core
-BuildRequires:	sed
+
+%if %{with tests}
+BuildRequires:  ansible-packaging-tests
+%endif
+
 
 Summary:	System fact inventory collection and storage
 
@@ -19,12 +24,11 @@ Fact inventory system for collecting, storing, and managing host facts
 across infrastructure.
 
 
-%package -n fact-inventory-gather
-Summary:	Fact inventory compatible Ansible agent
-Requires:	ansible-core
+%package -n ansible-collection-fermilab-fact_inventory
+Summary:	Fact inventory compatible Ansible role
 
-%description -n fact-inventory-gather
-Provides a fact-inventory compatible Ansible agent for
+%description -n ansible-collection-fermilab-fact_inventory
+Provides a fact-inventory compatible Ansible agent role for
 collecting system, package, and local facts from target hosts
 and submitting them to the fact-inventory API.
 
@@ -34,34 +38,35 @@ and submitting them to the fact-inventory API.
 
 
 %build
-# Extract playbook documentation from gather.yml
-sed -n '/===BEGIN_PLAYBOOK_DOC===/,/===END_PLAYBOOK_DOC===/p' gather.yml | \
-  sed -e '/===.*===$/d' -e 's/^# //' -e 's/^#$//' > docs/gather.yml.txt
 
-# Verify extraction succeeded (ensure delimiters were found)
-if [ ! -s docs/gather.yml.txt ]; then
-    echo "ERROR: Failed to extract documentation (delimiters not found in gather.yml)" >&2
-    exit 1
-fi
+cd agent/ansible/fact_inventory
+%ansible_collection_build
+
 
 
 %install
-install -m 0755 -d %{buildroot}%{_datarootdir}/fact-inventory-gather
-install -m 0644 gather.yml %{buildroot}%{_datarootdir}/fact-inventory-gather/
+
+cd agent/ansible/fact_inventory
+%ansible_collection_install
+
 
 
 %check
-ansible-playbook --syntax-check gather.yml
+echo 'localhost ansible_connection=local' >hosts.ini
+export \
+    ANSIBLE_COLLECTIONS_PATH=%{buildroot}%{ansible_collections_dir} \
+    ANSIBLE_INVENTORY=hosts.ini
+ansible-playbook $(find tests/playbooks/*.yaml -not -name 'jq.yaml')
 
 
-%files -n fact-inventory-gather
+%files -n ansible-collection-fermilab-fact_inventory -f %{ansible_collection_filelist}
 %license LICENSE
-%doc docs/gather.yml.txt
-%{_datarootdir}/fact-inventory-gather/gather.yml
+%doc agent/ansible/fact_inventory/README.md
+
 
 %changelog
-* Fri Jul 31 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.6
-- Move playbook to /usr/share following rpm review
+* Mon Aug 3 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.6
+- Move to collection/role for ansible agent
 - Add simple doc
 - Make fact gathering a bit more flexible
 

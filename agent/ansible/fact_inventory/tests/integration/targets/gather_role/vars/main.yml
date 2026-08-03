@@ -1,0 +1,12 @@
+---
+fact_inventory_api_server: "http://127.0.0.1:8123"
+fact_inventory_api_base_path: ""
+fact_inventory_api_endpoint: "/facts"
+
+fact_inventory_audit_path: "{{ output_dir }}/fact-inventory-payload.json"
+fact_inventory_audit_enabled: true
+fact_inventory_audit_become: false
+fact_inventory_audit_owner: "{{ ansible_user_id }}"
+fact_inventory_audit_group: "{{ ansible_user_id }}"
+fact_inventory_audit_dir_owner: "{{ ansible_user_id }}"
+fact_inventory_audit_dir_group: "{{ ansible_user_id }}"

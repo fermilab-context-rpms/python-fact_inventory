@@ -1,0 +1,26 @@
+namespace: fermilab
+name: fact_inventory
+version: 0.1.0
+readme: README.md
+authors:
+  - "Pat Riehecky <riehecky@fnal.gov>"
+  - "Fermilab"
+description: >-
+  Collect system, package, and local Ansible facts and submit them to a centralized fact_inventory API, with an optional local audit copy.
+license:
+  - AGPL-3.0-or-later
+tags:
+  - facts
+  - inventory
+repository: "https://github.com/fermitools/python-fact_inventory"
+issues: "https://github.com/fermitools/python-fact_inventory/issues"
+build_ignore:
+  - "*.tar.gz"
+  - ".git*"
+  - ".ansible-lint"
+  - ".ansible-lint-ignore"
+  - ".github"
+  - ".gitignore"
+  - "LICENSE"
+  - "README.md"
+  - "tests/.gitignore"

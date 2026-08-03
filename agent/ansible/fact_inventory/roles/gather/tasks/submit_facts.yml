@@ -1,0 +1,10 @@
+---
+- name: POST payload to fact_inventory API
+  ansible.builtin.uri:
+    url: "{{ fact_inventory_api_url }}"
+    method: POST
+    body_format: json
+    body: "{{ fact_inventory_api_payload | to_nice_json(indent=0) }}"
+    status_code: 201
+  register: fact_inventory_api_result
+  ignore_errors: true

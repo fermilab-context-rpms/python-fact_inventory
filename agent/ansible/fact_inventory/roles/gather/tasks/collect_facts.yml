@@ -1,0 +1,10 @@
+---
+- name: Gather ansible system facts
+  become: "{{ fact_inventory_facts_become | bool }}"
+  ansible.builtin.setup:
+    gather_subset: "{{ fact_inventory_facts_subset }}"
+    fact_path: "{{ fact_inventory_local_facts_dir }}"
+
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: "{{ fact_inventory_package_manager }}"
