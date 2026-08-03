@@ -129,7 +129,7 @@ ignore = [
   "PLC0415", # imports not at top level -- fixture-scoped imports are intentional
   "TRY003",  # exception messages in tests are often local
 ]
-"agent/ansible/fact_inventory/tests/**" = [
+"agent/ansible_collections/**/tests/**" = [
   "S101",  # test cases use assert
   "PTH",   # pathlib is less natural in ansible collection tests
 ]

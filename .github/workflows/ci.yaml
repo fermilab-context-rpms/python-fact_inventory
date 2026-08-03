@@ -41,16 +41,13 @@ jobs:
   ansible-collection-integration:
     runs-on: ubuntu-latest
     needs: pre-commit
-    defaults:
-      run:
-        working-directory: agent/ansible/fact_inventory
     steps:
       - uses: actions/checkout@v7
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.x"
-      - name: Install Ansible and dependencies
+      - name: Install Ansible
         run: pip install ansible
       - name: Run Ansible collection integration tests
-        run: ansible-test integration --python-interpreter /usr/bin/python3 --allow-destructive --allow-root
+        run: cd agent/ansible_collections/fermilab/fact_inventory && ansible-test integration --python-interpreter /usr/bin/python3 --allow-destructive

@@ -34,26 +34,26 @@ and submitting them to the fact-inventory API.
 
 %build
 
-cd agent/ansible/fact_inventory
+cd agent/ansible_collections/fermilab/fact_inventory
 %ansible_collection_build
 
 
 
 %install
 
-cd agent/ansible/fact_inventory
+cd agent/ansible_collections/fermilab/fact_inventory
 %ansible_collection_install
 
 
 
 %check
-cd agent/ansible/fact_inventory
+cd agent/ansible_collections/fermilab/fact_inventory
 %ansible_test_unit
 
 
 %files -n ansible-collection-fermilab-fact_inventory -f %{ansible_collection_filelist}
 %license LICENSE
-%doc agent/ansible/fact_inventory/README.md
+%doc agent/ansible_collections/fermilab/fact_inventory/README.md
 
 
 %changelog
