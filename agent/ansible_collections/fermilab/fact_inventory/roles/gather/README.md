@@ -101,6 +101,44 @@ nested dict silently drops its sibling keys. Flat names avoid that.
 
 See the `defaults/main.yml` for a list of what is provided.
 
+### Logging control variables
+
+- `fact_inventory_gather_suppress_collection_output` — Suppress output from setup,
+  package_facts, and build_payload tasks. Default: false.
+- `fact_inventory_gather_suppress_audit_output` — Suppress output from audit file
+  tasks. Default: true.
+- `fact_inventory_gather_suppress_submit_output` — Suppress output from API
+  submission task. Default: true.
+
+## Logging control
+
+The role provides `no_log` variables to suppress verbose output in Ansible
+plan runs, particularly useful when the fact payload may contain sensitive
+data:
+
+- `fact_inventory_gather_suppress_collection_output` (default: false) — Hides output from
+  the fact collection (`setup`, `package_facts`) and payload building stages.
+- `fact_inventory_gather_suppress_audit_output` (default: true) — Hides output from
+  audit file tasks. Enabled by default because audit files contain the
+  full payload and API response.
+- `fact_inventory_gather_suppress_submit_output` (default: true) — Hides output from
+  the API submission task. Enabled by default because the POST body may
+  contain sensitive system facts.
+
+The final validation task always produces output so you can see whether the
+play succeeded or failed.
+
+Example:
+
+    - hosts: all
+      gather_facts: false
+      roles:
+        - fermilab.fact_inventory.gather
+      vars:
+        fact_inventory_gather_suppress_collection_output: true
+        fact_inventory_gather_suppress_audit_output: true
+        fact_inventory_gather_suppress_submit_output: true
+
 ## Facts set by this role (not inputs)
 
 - `fact_inventory_gather_api_url` - the full submission URL

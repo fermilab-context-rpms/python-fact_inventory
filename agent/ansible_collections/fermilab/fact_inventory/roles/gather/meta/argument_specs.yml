@@ -115,3 +115,28 @@ argument_specs:
         required: false
         default: "0755"
         description: Audit directory permissions (quoted octal string).
+
+      fact_inventory_gather_suppress_collection_output:
+        type: bool
+        required: false
+        default: false
+        description: >-
+          Suppress output from setup and package_facts, and the build_payload
+          set_fact task. Set to true to hide sensitive system facts from
+          Ansible output.
+
+      fact_inventory_gather_suppress_audit_output:
+        type: bool
+        required: false
+        default: true
+        description: >-
+          Suppress audit file tasks output. Default true since audit tasks
+          write sensitive data.
+
+      fact_inventory_gather_suppress_submit_output:
+        type: bool
+        required: false
+        default: true
+        description: >-
+          Suppress the API submission task output. Default true since the
+          payload may contain sensitive data.

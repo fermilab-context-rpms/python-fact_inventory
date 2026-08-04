@@ -1,5 +1,5 @@
 Name:		python-fact_inventory
-Version:	0.0.10
+Version:	0.0.11
 Release:	1%{?dist}
 BuildArch:	noarch
 
@@ -61,6 +61,9 @@ cd agent/ansible_collections/fermilab/fact_inventory
 
 
 %changelog
+* Tue Aug 4 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.11
+- Make no_log more flexible, some folks might want to hide messages
+
 * Tue Aug 4 2026 Pat Riehecky <riehecky@fnal.gov> - 0.0.10
 - Drop no_log it hides too much
 

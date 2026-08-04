@@ -199,3 +199,31 @@ def test_audit_parameters() -> None:
     assert options["fact_inventory_gather_audit_dir_mode"]["default"] == "0755"
     assert options["fact_inventory_gather_audit_dir_mode"]["type"] == "str"
     assert defaults["fact_inventory_gather_audit_dir_mode"] == "0755"
+
+
+def test_no_log_parameters() -> None:
+    """Validate no_log parameters match specs."""
+    specs_file = get_role_path() / "meta" / "argument_specs.yml"
+    defaults_file = get_role_path() / "defaults" / "main.yml"
+
+    specs = load_yaml_file(specs_file)
+    defaults = load_yaml_file(defaults_file)
+
+    options = specs["argument_specs"]["main"]["options"]
+
+    # fact_inventory_gather_suppress_collection_output
+    assert (
+        options["fact_inventory_gather_suppress_collection_output"]["default"] is False
+    )
+    assert options["fact_inventory_gather_suppress_collection_output"]["type"] == "bool"
+    assert defaults["fact_inventory_gather_suppress_collection_output"] is False
+
+    # fact_inventory_gather_suppress_audit_output
+    assert options["fact_inventory_gather_suppress_audit_output"]["default"] is True
+    assert options["fact_inventory_gather_suppress_audit_output"]["type"] == "bool"
+    assert defaults["fact_inventory_gather_suppress_audit_output"] is True
+
+    # fact_inventory_gather_suppress_submit_output
+    assert options["fact_inventory_gather_suppress_submit_output"]["default"] is True
+    assert options["fact_inventory_gather_suppress_submit_output"]["type"] == "bool"
+    assert defaults["fact_inventory_gather_suppress_submit_output"] is True

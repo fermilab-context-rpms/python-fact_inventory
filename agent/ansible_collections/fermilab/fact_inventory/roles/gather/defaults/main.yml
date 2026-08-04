@@ -36,3 +36,8 @@ fact_inventory_gather_audit_create_parent_dir: true
 fact_inventory_gather_audit_dir_owner: root
 fact_inventory_gather_audit_dir_group: root
 fact_inventory_gather_audit_dir_mode: "0755"
+
+# --- Logging control ---
+fact_inventory_gather_suppress_collection_output: false
+fact_inventory_gather_suppress_audit_output: true
+fact_inventory_gather_suppress_submit_output: false
