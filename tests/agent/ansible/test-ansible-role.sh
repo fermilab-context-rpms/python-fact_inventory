@@ -6,6 +6,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Navigate to project root (3 levels up from tests/agent/ansible/)
 PROJECT_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
 
+# Enable health endpoint
+export ENABLE_HEALTH_ENDPOINT="True"
+
 cd "$PROJECT_ROOT"
 
 echo "Starting Ansible role integration test..."
@@ -41,7 +44,7 @@ if ! ps -p $APP_PID > /dev/null 2>&1; then
 fi
 
 for i in {1..30}; do
-  if curl -f http://localhost:8000/fact_inventory/health 2>/dev/null; then
+  if curl --output /dev/null -f http://localhost:8000/fact_inventory/health 2>/dev/null; then
     echo "Application is ready on port 8000"
     break
   fi
@@ -59,7 +62,7 @@ for i in {1..30}; do
 done
 
 # Final check
-if ! curl -f http://localhost:8000/fact_inventory/health 2>/dev/null; then
+if ! curl --output /dev/null -f http://localhost:8000/fact_inventory/health 2>/dev/null; then
   echo "ERROR: Application failed to become ready after 30 seconds"
   echo "Last 20 lines of app log:"
   tail -20 /tmp/app-test.log
