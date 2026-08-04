@@ -1,14 +1,15 @@
 # fermilab.fact_inventory.gather
 
-Collects Ansible system facts, package facts, and local facts, then POSTs
+Collects Ansible system facts, package facts, and local facts, then `POST`s
 them to the fact_inventory API. Optionally writes a local audit copy of the
 payload and API response (best-effort, non-fatal).
 
 ## Why a role, not a module
 
-This is orchestration (setup -> package_facts -> uri -> copy -> fail), not
-management of a single idempotent resource, so it is built from stock
-`ansible.builtin` modules rather than a custom Python module:
+This is orchestration (`setup` -> `package_facts` -> POST via `uri`
+-> log via `copy` -> check for `fail`), not management of a single
+idempotent resource, so it is built from stock `ansible.builtin`
+modules rather than a custom Python module:
 
 - Idempotency, check_mode, and retries are already handled correctly by
   `setup`, `package_facts`, `uri`, `copy`, and `file`.
@@ -36,14 +37,14 @@ large task list:
 | `validate_submission.yml` | Fail the play if and only if the API call failed                              |
 
 `import_tasks` (static) is used rather than `include_tasks` (dynamic) since
-none of these files are conditionally selected by name - static import
+none of these files are conditionally selected by name. A static import
 resolves fully at playbook-parse time, which is easier to reason about and
 slightly cheaper across a large host count.
 
 ## Requirements
 
 - ansible-core >= 2.10 (for collection-qualified role names)
-- Python 3 on the target
+- Working python on the target (ansible requirement)
 - Network reachability from the target to the fact_inventory API
 - Root privileges (e.g. `-K`, or a configured become method) for full
   fact detail; see `fact_inventory_gather_facts_become` / `fact_inventory_gather_audit_become`
@@ -90,40 +91,24 @@ Equivalent CLI patterns:
 ## Variables
 
 All variables are role defaults (lowest precedence, safely overridable
-from group\*vars/host*vars/-e) and use the `fact_inventory_gather*`
+from `group_vars`/`host_vars`/`-e`) and use the `fact_inventory_gather*`
 prefix - the collection domain plus the role name - so these names are
 unambiguous in plays that use several roles and stay collision-free if a
 future sibling role is added to this collection.
 
-Deliberately flat rather than nested dicts: Ansible's default
-`hash_behaviour` is `replace`, so a host_vars override of one key in a
-nested dict silently drops its sibling keys. Flat names avoid that.
+Deliberately flat rather than nested dicts:
+Ansible's default `hash_behaviour` is `replace`, so a `host_vars`
+override of one key in a nested dict silently drops its sibling keys.
+Flat names avoid that.
 
-See the `defaults/main.yml` for a list of what is provided.
-
-### Logging control variables
-
-- `fact_inventory_gather_suppress_collection_output` — Suppress output from setup,
-  package_facts, and build_payload tasks. Default: false.
-- `fact_inventory_gather_suppress_audit_output` — Suppress output from audit file
-  tasks. Default: true.
-- `fact_inventory_gather_suppress_submit_output` — Suppress output from API
-  submission task. Default: true.
+See the `defaults/main.yml` and `meta/argument_specs.yml` for a list of
+what is provided and how they are used.
 
 ## Logging control
 
-The role provides `no_log` variables to suppress verbose output in Ansible
+The role provides variables to suppress verbose output in Ansible
 plan runs, particularly useful when the fact payload may contain sensitive
-data:
-
-- `fact_inventory_gather_suppress_collection_output` (default: false) — Hides output from
-  the fact collection (`setup`, `package_facts`) and payload building stages.
-- `fact_inventory_gather_suppress_audit_output` (default: true) — Hides output from
-  audit file tasks. Enabled by default because audit files contain the
-  full payload and API response.
-- `fact_inventory_gather_suppress_submit_output` (default: true) — Hides output from
-  the API submission task. Enabled by default because the POST body may
-  contain sensitive system facts.
+data.
 
 The final validation task always produces output so you can see whether the
 play succeeded or failed.

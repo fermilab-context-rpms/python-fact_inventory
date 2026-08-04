@@ -6,10 +6,6 @@
 # variable precedence) - override via group_vars, host_vars, -e, or
 # vars: passed to include_role/import_role.
 #
-# Deliberately flat, not nested dicts: Ansible's default hash_behaviour
-# is "replace", not "merge". A nested var like fact_inventory_gather_api: {...}
-# would mean a host_vars override of just one key silently wipes out the
-# other keys in that dict. Flat names avoid that failure mode entirely.
 
 # --- Local fact collection ---
 fact_inventory_gather_package_manager: auto
@@ -37,7 +33,7 @@ fact_inventory_gather_audit_dir_owner: root
 fact_inventory_gather_audit_dir_group: root
 fact_inventory_gather_audit_dir_mode: "0755"
 
-# --- Logging control ---
+# --- Output and logging control (stdout/stderr) ---
 fact_inventory_gather_suppress_collection_output: false
 fact_inventory_gather_suppress_audit_output: true
 fact_inventory_gather_suppress_submit_output: false

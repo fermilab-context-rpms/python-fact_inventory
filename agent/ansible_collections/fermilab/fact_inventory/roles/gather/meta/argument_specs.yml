@@ -129,8 +129,8 @@ argument_specs:
         required: false
         default: true
         description: >-
-          Suppress audit file tasks output. Default true since audit tasks
-          are non failing.
+          Suppress audit file tasks output.
+          Default true since audit tasks are non failing.
 
       fact_inventory_gather_suppress_submit_output:
         type: bool
