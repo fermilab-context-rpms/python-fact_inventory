@@ -26,4 +26,5 @@
       }}
   become: "{{ fact_inventory_gather_audit_become | bool }}"
   failed_when: false
+  changed_when: false
   no_log: "{{ fact_inventory_gather_suppress_audit_output | bool }}"
