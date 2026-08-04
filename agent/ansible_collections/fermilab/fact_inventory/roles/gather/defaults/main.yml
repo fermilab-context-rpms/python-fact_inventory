@@ -12,6 +12,7 @@
 # other keys in that dict. Flat names avoid that failure mode entirely.
 
 # --- Local fact collection ---
+fact_inventory_gather_no_log: false
 fact_inventory_gather_package_manager: auto
 fact_inventory_gather_local_facts_dir: /etc/ansible/facts.d
 fact_inventory_gather_facts_become: true

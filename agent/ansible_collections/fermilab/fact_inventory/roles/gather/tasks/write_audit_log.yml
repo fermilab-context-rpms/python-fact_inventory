@@ -9,6 +9,7 @@
     mode: "{{ fact_inventory_gather_audit_dir_mode }}"
   become: "{{ fact_inventory_gather_audit_become | bool }}"
   failed_when: false
+  no_log: "{{ act_inventory_gather_no_log | bool }}"
 
 - name: Write audit file with payload and response
   ansible.builtin.copy:
@@ -25,4 +26,4 @@
       }}
   become: "{{ fact_inventory_gather_audit_become | bool }}"
   failed_when: false
-  no_log: true
+  no_log: "{{ act_inventory_gather_no_log | bool }}"
