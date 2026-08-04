@@ -14,4 +14,3 @@
         }}
       package_facts: "{{ ansible_facts.packages | default({}) }}"
       local_facts: "{{ ansible_facts.ansible_local | default({}) }}"
-  no_log: "{{ fact_inventory_gather_show_result_only | bool }}"

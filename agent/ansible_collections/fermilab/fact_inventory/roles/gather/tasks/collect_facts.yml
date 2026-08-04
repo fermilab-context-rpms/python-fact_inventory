@@ -2,16 +2,13 @@
 - name: Compose the fact_inventory API URL from its components
   ansible.builtin.set_fact:
     fact_inventory_gather_api_url: "{{ fact_inventory_gather_api_server }}{{ fact_inventory_gather_api_base_path }}{{ fact_inventory_gather_api_endpoint }}"
-  no_log: "{{ act_inventory_gather_no_log | bool }}"
 
 - name: Gather ansible system facts
   become: "{{ fact_inventory_gather_facts_become | bool }}"
   ansible.builtin.setup:
     gather_subset: "{{ fact_inventory_gather_facts_subset }}"
     fact_path: "{{ fact_inventory_gather_local_facts_dir }}"
-  no_log: "{{ act_inventory_gather_no_log | bool }}"
 
 - name: Gather the package facts
   ansible.builtin.package_facts:
     manager: "{{ fact_inventory_gather_package_manager }}"
-  no_log: "{{ fact_inventory_gather_show_result_only | bool }}"

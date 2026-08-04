@@ -11,12 +11,6 @@ argument_specs:
     author:
       - Fermilab
     options:
-      fact_inventory_gather_show_result_only:
-        type: bool
-        required: false
-        default: false
-        description: Only log if the final status of the role.
-
       fact_inventory_gather_package_manager:
         type: str
         required: false

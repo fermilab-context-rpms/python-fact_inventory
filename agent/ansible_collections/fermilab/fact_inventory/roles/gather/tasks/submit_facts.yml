@@ -8,4 +8,3 @@
     status_code: 201
   register: fact_inventory_gather_api_result
   ignore_errors: true
-  no_log: "{{ fact_inventory_gather_show_result_only | bool }}"
