@@ -122,8 +122,7 @@ argument_specs:
         default: false
         description: >-
           Suppress output from setup and package_facts, and the build_payload
-          set_fact task. Set to true to hide sensitive system facts from
-          Ansible output.
+          set_fact task.
 
       fact_inventory_gather_suppress_audit_output:
         type: bool
@@ -131,12 +130,11 @@ argument_specs:
         default: true
         description: >-
           Suppress audit file tasks output. Default true since audit tasks
-          write sensitive data.
+          are non failing.
 
       fact_inventory_gather_suppress_submit_output:
         type: bool
         required: false
-        default: true
+        default: false
         description: >-
-          Suppress the API submission task output. Default true since the
-          payload may contain sensitive data.
+          Suppress the API submission task output.

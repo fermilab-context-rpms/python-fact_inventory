@@ -224,6 +224,6 @@ def test_no_log_parameters() -> None:
     assert defaults["fact_inventory_gather_suppress_audit_output"] is True
 
     # fact_inventory_gather_suppress_submit_output
-    assert options["fact_inventory_gather_suppress_submit_output"]["default"] is True
+    assert options["fact_inventory_gather_suppress_submit_output"]["default"] is False
     assert options["fact_inventory_gather_suppress_submit_output"]["type"] == "bool"
-    assert defaults["fact_inventory_gather_suppress_submit_output"] is True
+    assert defaults["fact_inventory_gather_suppress_submit_output"] is False
