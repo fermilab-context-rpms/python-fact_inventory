@@ -7,6 +7,7 @@ _default:
 	@echo "make sources   - Create source tarball for koji"
 	@echo "make srpm      - Build source RPM locally"
 	@echo "make rpm       - Build binary RPM locally"
+	@echo "make test-ansible-role"
 
 sources:
 	@echo "Creating source tarball for koji"
@@ -24,4 +25,7 @@ rpm: sources
 	@echo "Building binary RPM"
 	rpmbuild -bb --define '_rpmdir $(current_dir)/RPMS' --define '_builddir $(current_dir)/BUILD' --define '_sourcedir $(current_dir)' $(name).spec
 
-.PHONY: _default sources srpm rpm
+test-ansible-role:
+	$(MAKE) -C tests/agent/ansible test-ansible-role
+
+.PHONY: _default sources srpm rpm test-ansible-role

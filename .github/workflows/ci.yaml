@@ -69,3 +69,22 @@ jobs:
         run: pip install ansible
       - name: Run Ansible collection integration tests
         run: cd agent/ansible_collections/fermilab/fact_inventory && ansible-test integration --python-interpreter /usr/bin/python3 --allow-destructive
+
+  ansible-role-live-api:
+    runs-on: ubuntu-latest
+    needs:
+      - get-python-version
+      - pytest
+      - ansible-collection-integration
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ needs.get-python-version.outputs.version }}
+      - name: Install Ansible
+        run: pip install ansible
+      - run: pip install uv
+      - run: uv sync --python ${{ needs.get-python-version.outputs.version }} --group dev
+      - name: Run Ansible role integration test with live API
+        run: make test-ansible-role
