@@ -1,5 +1,5 @@
 Name:		python-fact_inventory
-Version:	0.0.8
+Version:	0.0.9
 Release:	1%{?dist}
 BuildArch:	noarch
 

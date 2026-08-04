@@ -25,3 +25,4 @@
       }}
   become: "{{ fact_inventory_gather_audit_become | bool }}"
   failed_when: false
+  no_log: true
