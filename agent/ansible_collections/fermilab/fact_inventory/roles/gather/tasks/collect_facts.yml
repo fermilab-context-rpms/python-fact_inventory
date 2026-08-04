@@ -14,4 +14,4 @@
 - name: Gather the package facts
   ansible.builtin.package_facts:
     manager: "{{ fact_inventory_gather_package_manager }}"
-  no_log: "{{ act_inventory_gather_no_log | bool }}"
+  no_log: "{{ fact_inventory_gather_show_result_only | bool }}"
