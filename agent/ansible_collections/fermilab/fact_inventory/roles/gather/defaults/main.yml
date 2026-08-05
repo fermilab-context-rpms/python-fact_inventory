@@ -34,6 +34,6 @@ fact_inventory_gather_audit_dir_group: root
 fact_inventory_gather_audit_dir_mode: "0755"
 
 # --- Output and logging control (stdout/stderr) ---
-fact_inventory_gather_suppress_collection_output: false
 fact_inventory_gather_suppress_audit_output: true
+fact_inventory_gather_suppress_collection_output: false
 fact_inventory_gather_suppress_submit_output: false
