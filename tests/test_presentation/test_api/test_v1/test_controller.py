@@ -1,6 +1,7 @@
 """Tests for POST /v1/facts controller."""
 
 from contextlib import asynccontextmanager
+from ipaddress import ip_address
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
@@ -180,6 +181,32 @@ async def test_successful_submission_response_body_schema(
     assert "application/json" in response.headers["content-type"]
     assert isinstance(body["detail"], str)
     assert body["detail"]
+
+
+async def test_successful_submission_response_data_structure(
+    test_client: AsyncTestClient,
+) -> None:
+    """Success responses include data with client_address."""
+    response = await post_facts(
+        test_client,
+        payload=create_valid(),
+    )
+    body = response.json()
+
+    assert_status(response, HTTP_201_CREATED)
+    assert isinstance(body["data"], dict)
+    assert "client_address" in body["data"]
+    client_address = body["data"]["client_address"]
+    assert isinstance(client_address, str)
+    assert len(client_address) > 0
+
+    # client_address should be either a valid IPv4/IPv6 or a hostname
+    # (test client uses "testclient" as hostname)
+    try:
+        ip_address(client_address)
+    except ValueError:
+        # Not an IP, but that's okay - could be a hostname
+        assert client_address.isalnum() or "-" in client_address
 
 
 @pytest.mark.parametrize("field", FACT_FIELDS)

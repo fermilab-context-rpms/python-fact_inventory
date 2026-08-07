@@ -400,8 +400,8 @@ class FactInventoryController(Controller):
         self._log_record_created(request)
         return APIResponse(
             status="ok",
-            detail=f"Facts stored successfully for {request.client.host}",
-            data=None,
+            detail="Facts stored successfully",
+            data={"client_address": request.client.host},
         )
 
     @staticmethod
