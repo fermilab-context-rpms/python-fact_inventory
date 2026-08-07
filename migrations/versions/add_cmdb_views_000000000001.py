@@ -123,7 +123,7 @@ def _create_cmdb_host_interface_ipv4_addresses() -> None:
     CREATE VIEW cmdb_host_interface_ipv4_addresses AS
     SELECT ci.inventory_id
          , ci.client_address
-         , (ci.system_facts ->> 'machine_id') AS machine_id
+         , ci.machine_id
          , ci.last_updated_at
          , ci.fqdn
          , ci.interface_name
@@ -197,7 +197,7 @@ def _create_cmdb_host_interface_ipv6_addresses() -> None:
     SELECT ci.inventory_id
          , ci.client_address
          , ci.last_updated_at
-         , (ci.system_facts ->> 'machine_id') AS machine_id
+         , ci.machine_id
          , ci.fqdn
          , ci.interface_name
          , ci.device_type
