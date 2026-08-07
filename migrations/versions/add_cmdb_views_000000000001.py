@@ -86,8 +86,9 @@ def _create_cmdb_host_interfaces() -> None:
     CREATE VIEW cmdb_host_interfaces AS
     SELECT fi.id AS inventory_id
          , fi.client_address
-         , (fi.system_facts ->> 'fqdn') AS fqdn
          , fi.updated_at AS last_updated_at
+         , (fi.system_facts ->> 'machine_id') AS machine_id
+         , (fi.system_facts ->> 'fqdn') AS fqdn
          , iface_key AS interface_name
          , (iface_data ->> 'type') AS device_type
          , NULLIF((iface_data ->> 'macaddress'), '')::macaddr AS mac_address
@@ -122,8 +123,9 @@ def _create_cmdb_host_interface_ipv4_addresses() -> None:
     CREATE VIEW cmdb_host_interface_ipv4_addresses AS
     SELECT ci.inventory_id
          , ci.client_address
-         , ci.fqdn
+         , (ci.system_facts ->> 'machine_id') AS machine_id
          , ci.last_updated_at
+         , ci.fqdn
          , ci.interface_name
          , ci.device_type
          , ci.mac_address
@@ -194,8 +196,9 @@ def _create_cmdb_host_interface_ipv6_addresses() -> None:
     CREATE VIEW cmdb_host_interface_ipv6_addresses AS
     SELECT ci.inventory_id
          , ci.client_address
-         , ci.fqdn
          , ci.last_updated_at
+         , (ci.system_facts ->> 'machine_id') AS machine_id
+         , ci.fqdn
          , ci.interface_name
          , ci.device_type
          , ci.mac_address
@@ -277,6 +280,7 @@ def _create_cmdb_host_hardware() -> None:
     SELECT fi.id AS inventory_id
          , fi.client_address
          , fi.updated_at AS last_updated_at
+         , (fi.system_facts ->> 'machine_id') AS machine_id
          , (fi.system_facts ->> 'board_name') AS board_model
          , (fi.system_facts ->> 'product_name') AS product_name
          , (fi.system_facts ->> 'product_uuid') AS product_uuid
@@ -327,6 +331,7 @@ def _create_cmdb_host_storage_devices() -> None:
     SELECT fi.id AS inventory_id
          , fi.client_address
          , fi.updated_at AS last_updated_at
+         , (fi.system_facts ->> 'machine_id') AS machine_id
          , devices.device_name
          , (devices.device_data ->> 'model') AS device_model
          , (devices.device_data ->> 'vendor') AS device_vendor
@@ -396,8 +401,8 @@ def _create_cmdb_host_os_info() -> None:
     SELECT fi.id AS inventory_id
          , fi.client_address
          , fi.updated_at AS last_updated_at
-         , (fi.system_facts ->> 'fqdn') AS fqdn
          , (fi.system_facts ->> 'machine_id') AS machine_id
+         , (fi.system_facts ->> 'fqdn') AS fqdn
          , (fi.system_facts ->> 'distribution') AS os_name
          , (fi.system_facts ->> 'distribution_version') AS os_version
          , (fi.system_facts ->> 'kernel') AS kernel
