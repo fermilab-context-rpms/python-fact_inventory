@@ -18,3 +18,5 @@ Please read the documentation in the client directory:
 
 For production deployment of the API service that receives these facts, see the
 main docs in this `docs/` directory.
+
+Example rpm at https://github.com/fermilab-context-rpms/fermilab-conf_fact-inventory
